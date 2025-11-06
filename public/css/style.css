@@ -15,7 +15,7 @@ body{
     background-color: white;
 }
 .fa-compass{
-    color: red;
+    color: rgb(0, 51, 255);
     font-size: 2rem;
 }
 
@@ -56,21 +56,40 @@ body{
 }
 
 /* Cards */
-.listing-card{
+/* .listing-card{
     border: none !important;
-    margin-bottom: 2rem;
+     min-width: 260px;
+    margin-bottom: 4rem;
+    border-radius: 12px;
+  overflow: hidden;
 
 
-}
+} */
 /* .card-list{
     border: 2px solid black;
 } */
-.card-img-top{
+/* .card-img-top{
    
 border-radius: 1rem !important;
 width: 100% !important;
-object-fit: cover !important;
+height: 20rem;
+  object-fit: cover;
+ } */
+
+ .listing-card {
+  border: none;
+  min-width: 260px;
+  margin-bottom: 4rem;
+  border-radius: 12px;
+  overflow: hidden;
 }
+
+.card-img-top {
+  border-radius: 1rem;
+  height: 20rem;
+  object-fit: cover;
+}
+
 
 .card-body{
     padding: 0 !important;

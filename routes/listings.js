@@ -20,8 +20,29 @@ const validateListing=(req,res,next)=>{
 } 
 
 /* ismei common part listings h to listing sab jgh se hata degee */
+
+
 router.get("/",wrapAsync(async(req,res)=>{
-    let alllistings= await Listing.find({});
+    // const { category } = req.query;
+
+    let filter = {};
+
+    // If category is present, add to filter
+    // if (category) {
+    //     filter.category = category;
+    // }
+
+    if (req.query.q) {
+        filter.$text = { $search: req.query.q };
+    }
+
+    // Category filter
+    if (req.query.category) {
+        filter.category = req.query.category;
+    }
+
+    let alllistings = await Listing.find(filter);
+   // let alllistings= await Listing.find({});
     res.render("listings/index.ejs",{alllistings});
 }));
 
@@ -36,6 +57,25 @@ router.get("/new",(req,res)=>{
     res.render("listings/new.ejs" );
 
 });
+
+
+//search-->
+router.get("/search", async (req, res) => {
+    const q = req.query.q;
+
+    const listinged = await Listing.find({
+        $or: [
+            { title: { $regex: q, $options: "i" } },  //option for small or capital lettr and rgex is patterrn on search bar
+            { location: { $regex: q, $options: "i" } },
+            { country: { $regex: q, $options: "i" } },
+            { description: { $regex: q, $options: "i" } },
+        ]
+    });
+
+    res.render("listings/index.ejs", { alllistings: listinged });
+});
+
+
     //1---SHOW ROUTE-- ye id ke basis pr sara deetails print krega--
 router.get("/:id",wrapAsync(async(req,res)=>{
     let {id}=req.params;
@@ -189,5 +229,8 @@ router.delete("/:id",wrapAsync(async(req,res)=>{
    // console.log(deleted);
     res.redirect("/listings");
 }));
+
+
+
 
 module.exports=router;

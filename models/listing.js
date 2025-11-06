@@ -18,10 +18,10 @@ const listingSchema =new Schema({
     },
     description: String,
     image:{//for cloudinary 
-        url:String,  //path for cloudinary  
-
+        url:String,  //path for cloudinary 
         filename:String, //folder for cloudinary
 
+        
         //ye cloud nhii tha tb use krte thee
         /* type:String,
         default:
@@ -38,15 +38,26 @@ const listingSchema =new Schema({
     reviews:[
         {
             type:Schema.Types.ObjectId,
-            ref:"Review"
-        },,
+            ref:"Review",
+        },
     ],
     owner:{
         type:Schema.Types.ObjectId,
         ref:"User",
     },
-  
+     category: String,
+    
 });
+    listingSchema.index({
+    title: "text",
+    description: "text",
+    location: "text",
+    country: "text",
+   
+});
+
+  
+
 
 //delete mongoose middleware
 //yee basically listing lega uske andr ke sare review delete hone ke baad uske object id k basis pr use bhhi dlte krega
