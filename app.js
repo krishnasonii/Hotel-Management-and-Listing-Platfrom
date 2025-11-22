@@ -1,6 +1,6 @@
 
-// Load environment variables in non-production
-//agr hamrai node envrmnt ki value production p nii h to dotenv ka use krge
+
+
 if (process.env.NODE_ENV !== "production") {
     require('dotenv').config();
 }
@@ -16,7 +16,6 @@ const path =require("path");
 const Listing =require("./models/listing.js");
 const methodOverride = require("method-override");
 const ejsMate =require("ejs-mate");
-//const wrapAsync=require("./utils/Wrapasync.js");
 const ExpressError=require("./utils/ExpressError.js");
 
 
@@ -49,9 +48,9 @@ const dbUrl = process.env.ATLASDB_URL;
 async function connectWithRetry() {
     try {
         await mongoose.connect(dbUrl, {
-            tls: true,                       // Force TLS
+            tls: true,                       
             tlsAllowInvalidCertificates: false,
-            serverSelectionTimeoutMS: 5000   // Fail quickly if network issues
+            serverSelectionTimeoutMS: 5000   
         });
         console.log("Connected to MongoDB Atlas!");
     } catch (err) {
@@ -62,13 +61,12 @@ async function connectWithRetry() {
 connectWithRetry();
 
 
-/* mongo session --isse ab session ki informatino mongo atlad mei online hoga*/
 const store=MongoStore.create({
     mongoUrl: dbUrl,
     crypto:{
         secret:process.env.SECRET
     },
-    touchAfter:24*3600,//Har 24 hours mein ek baar session ko update karega, bar bar unnecessary writes nahi karega
+    touchAfter:24*3600,
 });
 
 store.on("error", () =>{
@@ -76,15 +74,15 @@ store.on("error", () =>{
 });
 
 const sessionOptions={
-    store,//Mongostore ki information pass kiye h//Session MongoDB mein store hoga, memory mein nahi
-    secret: process.env.SECRET,//session data ko encrypt krta h//Cookie encrypt karne ke liye
-    resave:false,//Agar session change nahi hua toh dubara save mat karo
-    saveUninitialized:false, //Naya session turant create nahi hoga jab tak kuch store na ho
-    //ye hum login validity set krega koi website pr kitne din tkk rh skte h login
+    store,
+    secret: process.env.SECRET,
+    resave:false,
+    saveUninitialized:false, 
+    
     cookie:{
-        expires:Date.now() + 7*24*60*60*100,//7 days 24 hours 60min 60sec 100milisec//Login session 7 din tak valid rahega
+        expires:Date.now() + 7*24*60*60*100,
         maxAge:7*24*60*60*100,
-        httpOnly:true,//Browser JavaScript se cookie access nahi kar sakta — security feature
+        httpOnly:true,
     },
 };
 
@@ -94,17 +92,17 @@ const sessionOptions={
 app.use(session(sessionOptions));
 app.use(flash());
 
-app.use(passport.initialize());//passport initialize krne k liye
+app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 
-passport.serializeUser(User.serializeUser());//login k time session serialize krna baar baar login na karna pre
-passport.deserializeUser(User.deserializeUser());//agr session end ho ya to user ko deserialize krna
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
  
 app.use((req,res,next)=>{
-    res.locals.success=req.flash("success");//koi bhi flash msg ko print k liye ise locals ke andr save krna hota h
+    res.locals.success=req.flash("success");
    res.locals.error=req.flash("error");
-    res.locals.currUser=req.user;//user ki infomation ko store kar rha h 
+    res.locals.currUser=req.user;
    next();
 });
 
@@ -114,16 +112,16 @@ app.use("/listings",listingRouter); /* yhi single line code express router ko ch
 app.use("/listings/:id/reviews",reviewRouter);
 app.use("/",userRouter);
 
-// Catch-all for any undefined route (404)
+
 app.use((req, res, next) => {
     next(new ExpressError(404, "Page not found"));
 });
 
 app.use((err,req,res,next)=>{
-    //locals ko hum  ejs mei aasani se access kr sakte h for print something
-   let {statusCode=500,message="something wrong"}=err;//ye err se hum nikale h agr ye dono aaye page not msg print krga
+    
+   let {statusCode=500,message="something wrong"}=err;
   res.status(statusCode).render("error.ejs",{message});
- //res.render("error.ejs",{err}); //ye message pass kiye h error.ejs mei whi print krga
+ 
    
 
 });

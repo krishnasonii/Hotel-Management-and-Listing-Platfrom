@@ -1,10 +1,5 @@
 <% layout("/layouts/boilerplate") %>
-    <!-- <form action="/listings/new" method="GET">
-        <button>Create new</button>
-    </form> -->
-                        <!-- For card create -->
-<!--                          <h3>All listings</h3>
- -->           
+         
         <style>
             #filters{
               display: flex;
@@ -148,7 +143,7 @@
 <script>
   let taxSwitch=document.getElementById("switchCheckDefault");
     taxSwitch.addEventListener("click",()=>{
-     // console.log("clicked");
+     
      let taxinfo=document.getElementsByClassName("tax-info");
      for(info of taxinfo){
       if(info.style.display != "inline"){
@@ -161,10 +156,5 @@
   
 </script>
 
-    <!-- in sbko remove krge kyu ki ye repeat krega upr kr trhh -->
-    <!-- <h1>All Listings</h1>
-    <ul>
-   /*<//%//for( //let list of alllistings){%>*/
-     <li><a href="/listings/<//%=//list._id%>"><p><//%=//list.title%></p></a></li> <!- yee title p click hine pr get rqst pr work kregz -->
-        
+
     

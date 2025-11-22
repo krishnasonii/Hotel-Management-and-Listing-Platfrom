@@ -18,18 +18,8 @@
     </div>
 
 
-    <!-- <ul> --> <!-- ye sara upr image wale mei chle gya h -->
-    <!-- <li><p><//%=listing.description%></p></li>
-    <li><p>&#8377;<//%= listing.price?.toLocaleString("en-IN") || "N/A" %></p></li>
-    ismei kch price mei value nahi hoga to N/A print krega-- -->
-    <!-- <li><p><//%=listing.location%></p></li>
-    <li><p><//%=listing.country%></p></li>
-    </ul> --> 
-
      <%if(currUser && currUser._id.equals(currUser._id)){%>
-        <!-- agr jb tkk user login nii krta h to tbtk ye dlte and edit hide kr dega -->
-    <!-- ye jo user ka id listing owner ke id ke equal hogi tabhi buttnon show krwyeg  -->
-   <div class="btns" style="margin-left: 100px; position: relative;">
+          <div class="btns" style="margin-left: 100px; position: relative;">
     <a href="/listings/<%=listing._id%>/edit" class="btn btn-dark col-1 offset-2" style="background-color: red;">Edit</a>
  
     <form action="/listings/<%=listing._id%>?_method=DELETE" method="POST">
@@ -43,7 +33,7 @@
   
      <center>
     <div class="card col-6 offset-2" style="margin-left: 10px;">
-    <% if(currUser) {%><!-- jb tkk user login nahi karta to hide kr dega review ko -->
+    <% if(currUser) {%>
         <h4>Leave a Review</h4>
         <form action="/listings/<%=listing._id%>/reviews" method="post" novalidate class="needs-validation">
             <div class="mb-3 mt-3">
@@ -65,12 +55,6 @@
 
     <br>
     <br>
-     <!--    <h4>All reviews</h4>
-        <ul>
-        <//%for(review of listing.reviews){%>
-            <li><//%=review.comment%>,<//%=review.rating%>stars</li>
-        <//%}%>
-        </ul> -->
 
          <!-- Card ke form mei store kryege -->
         <p>All Reviews</p>

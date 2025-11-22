@@ -1,17 +1,17 @@
 
 const mongoose =require("mongoose");
-const Schema =mongoose.Schema;  //schema banae ke liye 
+const Schema =mongoose.Schema;  
 
 const reviewSchema=new Schema({
      comment:String,
      rating:{
         type:Number,
-        min:1,      //Min and Max 1&5 hogi
+        min:1,      
         max:5
      },
      createdAt:{
         type:Date,
-        default:Date.now()//agr koi review ke saath date nii hoga to bydefault set hoga ye current date
+        default:Date.now()
      },
      author:{
       type:Schema.Types.ObjectId,
@@ -19,7 +19,7 @@ const reviewSchema=new Schema({
      }
 });
 
-module.exports=mongoose.model("Review",reviewSchema);//ye Review naam ka collection h
+module.exports=mongoose.model("Review",reviewSchema);
 
-//next step One to Many 
+
 

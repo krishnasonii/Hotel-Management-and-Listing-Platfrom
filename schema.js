@@ -1,6 +1,4 @@
 const Joi = require('joi');
-
-//isme hum basically sara chis ko required kara h agr errorr aayega to ye error show krega
 module.exports.listingSchema=Joi.object({
     listing : Joi.object({
         title:Joi.string().required(),
@@ -15,7 +13,7 @@ module.exports.listingSchema=Joi.object({
 /* Review-- */
 module.exports.reviewSchema=Joi.object({
     review:Joi.object({
-        rating:Joi.number().required().min(1).max(5),//ye atng ek fix range 1 to 5
+        rating:Joi.number().required().min(1).max(5),
         comment: Joi.string().required(),
     }).required() 
      });

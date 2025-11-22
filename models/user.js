@@ -12,6 +12,6 @@ const userSchema= new Schema({
 
 
 
-userSchema.plugin(passportLocalMongoose);//ye username, password,hashing,salting automatic generate krta h
+userSchema.plugin(passportLocalMongoose);
 
-module.exports=mongoose.model("User",userSchema);//ye User ka collection create hua h
+module.exports=mongoose.model("User",userSchema);
