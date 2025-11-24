@@ -1,6 +1,4 @@
 
-
-
 if (process.env.NODE_ENV !== "production") {
     require('dotenv').config();
 }
@@ -107,7 +105,7 @@ app.use((req,res,next)=>{
 });
 
 
-app.use("/listings",listingRouter); /* yhi single line code express router ko chala rha h  */
+app.use("/listings",listingRouter); 
  
 app.use("/listings/:id/reviews",reviewRouter);
 app.use("/",userRouter);
