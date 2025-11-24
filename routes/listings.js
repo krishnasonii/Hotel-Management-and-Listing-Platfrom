@@ -46,8 +46,6 @@ router.get("/new",(req,res)=>{
 
 });
 
-
-
 router.get("/search", async (req, res) => {
     const q = req.query.q;
 
@@ -62,14 +60,9 @@ router.get("/search", async (req, res) => {
 
     res.render("listings/index.ejs", { alllistings: listinged });
 });
-
-
-    
+ 
 router.get("/:id",wrapAsync(async(req,res)=>{
-    let {id}=req.params;
-    
-           
-
+    let {id}=req.params;   
    
         /* Nested populate- */
 
@@ -103,11 +96,7 @@ router.post("/", upload.single('listing[image]'),validateListing,  wrapAsync(asy
    console.log(result); 
    if(result.error){  
     throw new ExpressError(400,result.error);
-   }
-
-        
-
-            
+   } 
             let url=req.file?.path;
             
            
@@ -181,11 +170,6 @@ router.put("/:id", upload.single('listing[image]'),validateListing,wrapAsync(asy
         listing.image={url,filename};
         await listing.save();
    }
-    
-
-   
-   
-    
         req.flash("success"," Listing Updated!"); 
 
     res.redirect(`/listings/${id}`);
@@ -211,8 +195,4 @@ router.delete("/:id",wrapAsync(async(req,res)=>{
    
     res.redirect("/listings");
 }));
-
-
-
-
 module.exports=router;

@@ -3,8 +3,8 @@ if (process.env.NODE_ENV !== "production") {
     require('dotenv').config();
 }
 
-const tls = require("tls");
-tls.DEFAULT_MIN_VERSION = "TLSv1.2";
+// const tls = require("tls");
+// tls.DEFAULT_MIN_VERSION = "TLSv1.2";
 
 
 const express=require("express");
@@ -46,10 +46,13 @@ const dbUrl = process.env.ATLASDB_URL;
 async function connectWithRetry() {
     try {
         await mongoose.connect(dbUrl, {
-            tls: true,                       
+            serverSelectionTimeoutMS: 5000,
+            ssl: true,
+            tls: true,
             tlsAllowInvalidCertificates: false,
-            serverSelectionTimeoutMS: 5000   
+            retryWrites: true
         });
+
         console.log("Connected to MongoDB Atlas!");
     } catch (err) {
         console.error("MongoDB connection error, retrying in 5s", err);
@@ -58,17 +61,22 @@ async function connectWithRetry() {
 }
 connectWithRetry();
 
-
-const store=MongoStore.create({
+const store = MongoStore.create({
     mongoUrl: dbUrl,
-    crypto:{
-        secret:process.env.SECRET
+    mongoOptions: {
+        ssl: true,
+        tls: true,
+        tlsAllowInvalidCertificates: false
     },
-    touchAfter:24*3600,
+    crypto: {
+        secret: process.env.SECRET
+    },
+    touchAfter: 24 * 3600
 });
 
-store.on("error", () =>{
-    console.log("Error in Mongo session store",err);
+
+store.on("error", (err) => {
+    console.log("Error in Mongo session store", err);
 });
 
 const sessionOptions={
@@ -84,7 +92,7 @@ const sessionOptions={
     },
 };
 
-
+/*----------*/ 
 
 
 app.use(session(sessionOptions));
