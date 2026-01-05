@@ -1,31 +1,102 @@
 
 <style>
+  .custom-navbar {
+    background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+    padding: 0.6rem 1.2rem;
+  }
+
+  .navbar-brand i {
+    font-size: 1.6rem;
+    color: #fe424d;
+  }
+
+  .nav-link {
+    font-weight: 500;
+    margin: 0 0.4rem;
+    color: #333 !important;
+  }
+
+  .nav-link:hover {
+    color: #fe424d !important;
+  }
+
+   #srch {
+    border-radius: 30px;
+    padding: 0.45rem 1rem;
+    min-width: 260px;
+    border: 1px solid #ddd;
+  }
+
+  #srch:focus {
+    box-shadow: 0 0 0 0.15rem rgba(254, 66, 77, 0.25);
+    border-color: #fe424d;
+  }
+
   .btn-search {
     background-color: #fe424d;
     color: #fff;
-    border-radius: 25px;
-    padding: 0 1rem;
+    border-radius: 30px;
+    padding: 0.45rem 1.2rem;
+    font-weight: 500;
+    white-space: nowrap;
   }
 
   .btn-search:hover {
-    background-color: #fe424d;
+    background-color: #e63946;
     color: #fff;
   }
 
-  #srch {
-    border-radius: 25px;
+  .navbar-collapse {
+    border-radius: 12px;
+  }
+
+  @media (max-width: 768px) {
+
+    .custom-navbar {
+      padding: 0.6rem 0.8rem;
+    }
+
+    .navbar-collapse {
+      background: #ffffff;
+      margin-top: 0.6rem;
+      padding: 1rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+
+    .navbar-nav {
+      text-align: center;
+    }
+
+    .nav-link {
+      margin: 0.4rem 0;
+    }
+
+    form.d-flex {
+      flex-direction: column;
+      width: 100%;
+      margin: 0.6rem 0;
+    }
+
+    #srch {
+      min-width: 100%;
+      margin-bottom: 0.6rem;
+    }
+
+    .btn-search {
+      width: 100%;
+    }
   }
 </style>
 
-<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
+
+<nav class="navbar navbar-expand-md custom-navbar sticky-top border-bottom">
   <div class="container-fluid">
 
-    <!-- Brand Logo -->
     <a class="navbar-brand" href="/listings">
       <i class="fa-solid fa-compass"></i>
     </a>
 
-    <!-- Toggler -->
+     
     <button class="navbar-toggler" 
             type="button" 
             data-bs-toggle="collapse" 
@@ -33,32 +104,39 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- NAV LINKS COLLAPSE -->
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="background-color:grey">
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 
-      <!-- LEFT NAV ITEMS -->
+      
       <div class="navbar-nav me-auto">
         <a class="nav-link" href="/listings">Explore</a>
       </div>
 
-      <!-- SEARCH BAR (inside collapse) -->
+     
       <form class="d-flex mx-auto my-2 my-md-0" action="/listings/search" method="GET">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="srch" name="q" />
-        <button class="btn btn-search" type="submit">Search</button>
+        <input
+          class="form-control me-2"
+          type="search"
+          placeholder="Search Hotels"
+          aria-label="Search"
+          id="srch"
+          name="q"
+        />
+        <button class="btn btn-search" type="submit">
+          Search
+        </button>
       </form>
 
-      <!-- RIGHT NAV ITEMS -->
       <div class="navbar-nav ms-auto text-center">
 
         <a class="nav-link" href="/listings/new">Hotels Your Home</a>
 
         <% if (!currUser) { %>
-          <a class="nav-link active" href="/signup"><b>Signup</b></a>
-          <a class="nav-link active" href="/login"><b>Login</b></a>
+          <a class="nav-link fw-bold" href="/signup">Signup</a>
+          <a class="nav-link fw-bold" href="/login">Login</a>
         <% } %>
 
         <% if (currUser) { %>
-          <a class="nav-link active" href="/logout"><b>Logout</b></a>
+          <a class="nav-link fw-bold text-danger" href="/logout">Logout</a>
         <% } %>
 
       </div>

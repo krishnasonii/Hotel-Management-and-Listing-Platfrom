@@ -1,9 +1,4 @@
 
-
-
-
-                
-/* GLOBAL */
 body {
     font-family: Arial, Helvetica, sans-serif;
     display: flex;
@@ -18,7 +13,7 @@ body {
     flex: 1;
 }
 
-/* NAVBAR */
+
 .navbar {
     height: 5rem;
     background-color: white;
@@ -32,7 +27,7 @@ body {
     font-size: 2rem;
 }
 
-/* FOOTER */
+
 .airbnb-footer {
     background: #f7f7f7;
     padding: 40px 20px;
@@ -87,7 +82,7 @@ body {
     color: #000;
 }
 
-/* CARDS */
+
 .listing-card {
     border: none;
     min-width: 260px;
@@ -121,7 +116,11 @@ body {
     background-color: white;
 }
 
-/* SHOW PAGE */
+
+.show-card {
+    border-radius: 12px;
+}
+
 .show-img {
     width: 100%;
     height: 30vh;
@@ -130,12 +129,10 @@ body {
 
 .btns {
     display: flex;
-    gap: 10px;
+    gap: 1rem;
+    margin-top: 1rem;
 }
 
-
-/* RESPONSIVE */
-/* Tablet & Mobile */
 
 @media (max-width: 992px) {
     .footer-container {
@@ -144,12 +141,13 @@ body {
     }
 }
 
-/* Mobile */
 @media (max-width: 768px) {
+
     .navbar {
         padding: 0 10px;
     }
 
+    /* Footer */
     .footer-container {
         grid-template-columns: 1fr;
         gap: 30px;
@@ -168,15 +166,46 @@ body {
     .card-img-top {
         height: 14rem;
     }
+
+    h1 {
+        text-align: center;
+        font-size: 1.6rem;
+    }
+
+    .show-card {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+
+    /* Buttons */
+    .btns {
+        flex-direction: column;
+        align-items: center;
+        margin-left: 0 !important;
+    }
+
+    .btns a,
+    .btns button {
+        width: 90%;
+        font-size: 1rem;
+        padding: 0.6rem;
+    }
+
+    /* Review cards */
+    .card.col-6,
+    .card.col-5 {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
 }
 
-/* Extra small phones */
 @media (max-width: 480px) {
+
     .card-img-top {
         height: 12rem;
     }
 
-    h3, h2, p {
+    h2, h3, p {
         font-size: 14px;
     }
 

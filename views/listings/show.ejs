@@ -3,7 +3,7 @@
         <div class="col-8 offset-2">
     <h1><%=listing.title%></h1>
             </div>
-    <div class="card col-6 offset-3 show-card listing-card " ><!-- for design --> <!-- col-6 is a width -->
+    <div class="card col-6 offset-3 show-card listing-card " >
         <img src="<%=listing.image.url%>" class="card-img-top show-img" alt="listing_image">
   <div class="card-body">
     <p class="card-text">Owned By:<i><%=listing.owner.username%></i></p>
@@ -19,13 +19,18 @@
 
 
      <%if(currUser && currUser._id.equals(currUser._id)){%>
-          <div class="btns" style="margin-left: 100px; position: relative;">
-    <a href="/listings/<%=listing._id%>/edit" class="btn btn-dark col-1 offset-2" style="background-color: red;">Edit</a>
- 
-    <form action="/listings/<%=listing._id%>?_method=DELETE" method="POST">
-        <button class="btn btn-dark  offset-4">Delete</button>
-    </form>
+   <div class="btns justify-content-center">
+  <a href="/listings/<%=listing._id%>/edit" class="btn btn-danger">
+    Edit
+  </a>
+
+  <form action="/listings/<%=listing._id%>?_method=DELETE" method="POST">
+    <button class="btn btn-dark">
+      Delete
+    </button>
+  </form>
 </div>
+
    <% }%>
  
 
@@ -56,8 +61,7 @@
     <br>
     <br>
 
-         <!-- Card ke form mei store kryege -->
-        <p>All Reviews</p>
+         <p>All Reviews</p>
         <div class="row">
          <%for(review of listing.reviews){%>
             <div class="card col-5 ms-3 mb-3">
