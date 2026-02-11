@@ -4,6 +4,7 @@ const wrapAsync=require("../utils/Wrapasync.js");
 const {listingSchema}=require("../schema.js");  
 const ExpressError=require("../utils/ExpressError.js");
 const Listing =require("../models/listing.js");
+const User = require("../models/user");
 
 const multer  = require('multer');
 const{storage}=require("../cloudConfig.js");
@@ -139,6 +140,30 @@ router.get("/:id/edit",wrapAsync(async(req,res)=>{
 
 }));
 
+//wishlist
+
+router.post("/:id/wishlist", wrapAsync(async (req, res) => {
+  if (!req.isAuthenticated()) {
+    req.flash("error", "Please login first");
+    return res.redirect("/login");
+  }
+
+  const { id } = req.params;
+  const user = await User.findById(req.user._id);
+
+  const index = user.wishlist.indexOf(id);
+
+  if (index === -1) {
+    user.wishlist.push(id);   // add
+    req.flash("success", "Added to wishlist");
+  } else {
+    user.wishlist.splice(index, 1); // remove
+    req.flash("success", "Removed from wishlist");
+  }
+
+  await user.save();
+  res.redirect(`/listings/${id}`);
+}));
 
 router.put("/:id", upload.single('listing[image]'),validateListing,wrapAsync(async(req,res)=>{
     let {id}=req.params;
@@ -148,9 +173,6 @@ router.put("/:id", upload.single('listing[image]'),validateListing,wrapAsync(asy
         return res.redirect("/login");
     }
     
-    
-    
-
     
     
     let listings=await Listing.findById(id);
@@ -195,4 +217,8 @@ router.delete("/:id",wrapAsync(async(req,res)=>{
    
     res.redirect("/listings");
 }));
+
+
+
+
 module.exports=router;

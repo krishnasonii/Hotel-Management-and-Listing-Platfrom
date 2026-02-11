@@ -1,81 +1,122 @@
 <% layout("/layouts/boilerplate") %>
+
 <style>
-  #filters{
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-  }
+/* FILTERS */
+#filters{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
 
-  .filter{
-    text-align: center;
-    margin-right: 2rem;
-    margin-top: 2rem;
-    opacity: 0.7;
-  }
+.filter{
+  text-align: center;
+  margin-right: 2rem;
+  margin-top: 2rem;
+  opacity: 0.7;
+}
 
-  .filter:hover{
-    opacity: 1;
-    cursor: pointer;
-  }
+.filter:hover{
+  opacity: 1;
+  cursor: pointer;
+}
 
-  .filter p{
-    font-size: 0.8rem;
-  }
+.filter p{
+  font-size: 0.8rem;
+}
 
-  .tax-info{
-    display: none;
-  }
+/* GST */
+.tax-info{
+  display: none;
+  color: green;
+  font-weight: 500;
+}
 
-  .tax-toggle{
-    border: 1px solid black;
-    border-radius: 1rem;
-    height: 3.5rem;
-    padding: 1rem;
-    margin-top: 1rem;
-    margin-left: 5rem;
-    display: flex;
-    align-items: center;
-  }
+.tax-toggle{
+  border: 1px solid black;
+  border-radius: 1rem;
+  height: 3.5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  margin-left: 5rem;
+  display: flex;
+  align-items: center;
+}
 
-  .listing-card{
-    height: 100%;
-  }
+/* CARD */
+.listing-card{
+  height: 100%;
+  transition: 0.2s ease;
+  border-radius: 15px;
+  overflow: hidden;
+}
 
-  .title-row{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-  }
+.listing-card:hover{
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  transform: translateY(-3px);
+}
 
-  .title-row b{
-    display: -webkit-box;
-    -webkit-line-clamp: 2;      
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.3rem;
-    min-height: 2.6rem;         
-  }
+.title-row{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
 
-  .book-btn{
-    white-space: nowrap;
-    font-size: 0.75rem;
-    padding: 0.35rem 0.7rem;
-  }
+.title-row b{
+  display: -webkit-box;
+  -webkit-line-clamp: 2;      
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3rem;
+  min-height: 2.6rem;         
+}
 
-  .listing-link{
-    text-decoration: none;
-    color: inherit;
-  }
+.book-btn{
+  white-space: nowrap;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+}
 
-  .listing-card:hover{
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    transform: translateY(-2px);
-    transition: 0.2s;
-  }
+.listing-link{
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ❤️ Wishlist */
+.image-container {
+  position: relative;
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+  z-index: 5;
+}
+
+.wishlist-btn i {
+  font-size: 18px;
+  color: #ff385c;
+}
+
+.wishlist-btn:hover {
+  transform: scale(1.1);
+}
 </style>
 
 
+<!-- ================= FILTER SECTION ================= -->
 <div id="filters">
 
   <div class="filter">
@@ -141,6 +182,7 @@
     </a>
   </div>
 
+  <!-- GST Toggle -->
   <div class="tax-toggle">
     <div class="form-check-reverse form-switch">
       <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
@@ -152,6 +194,8 @@
 
 </div>
 
+
+<!-- ================= LISTINGS ================= -->
 <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-4">
 
   <% if (alllistings.length === 0) { %>
@@ -160,32 +204,65 @@
 
   <% alllistings.forEach(list => { %>
     <div class="col mb-4">
-      <a href="/listings/<%= list._id %>" class="listing-link">
-        <div class="card listing-card h-100">
 
-          <img src="<%= list.image.url %>" class="card-img-top" alt="listing_image">
+      <div class="card listing-card h-100">
 
-          <div class="card-body">
-            <div class="title-row">
-              <b><%= list.title %></b>
-              <span class="btn btn-sm btn-danger book-btn">
-                Book Now
-              </span>
-            </div>
+        <!-- IMAGE + HEART -->
+        <div class="image-container">
 
-            <p class="card-text mt-2">
-              ₹<%= list.price?.toLocaleString("en-IN") || "N/A" %>/night
-              <i class="tax-info"> +18% GST</i>
-            </p>
-          </div>
+          <a href="/listings/<%= list._id %>" class="listing-link">
+            <img src="<%= list.image.url %>" class="card-img-top" alt="listing_image">
+          </a>
+
+          <% if(currUser){ %>
+            <form action="/listings/<%= list._id %>/wishlist" method="POST">
+              <button type="submit"
+                      class="wishlist-btn"
+                      onclick="event.stopPropagation();">
+
+                <% if(currUser.wishlist && 
+                     currUser.wishlist.some(id => id.toString() === list._id.toString())) { %>
+
+                  <i class="fa-solid fa-heart"></i>
+
+                <% } else { %>
+
+                  <i class="fa-regular fa-heart"></i>
+
+                <% } %>
+
+              </button>
+            </form>
+          <% } %>
 
         </div>
-      </a>
+
+        <!-- BODY -->
+        <div class="card-body">
+          <div class="title-row">
+            <b><%= list.title %></b>
+            <span class="btn btn-sm btn-danger book-btn">
+              Book Now
+            </span>
+          </div>
+
+          <p class="card-text mt-2">
+            ₹<%= list.price?.toLocaleString("en-IN") || "N/A" %>/night
+            <span class="tax-info">
+              | Total: ₹<%= (list.price * 1.18).toLocaleString("en-IN") %>
+            </span>
+          </p>
+        </div>
+
+      </div>
+
     </div>
   <% }) %>
 
 </div>
 
+
+<!-- GST SCRIPT -->
 <script>
   const taxSwitch = document.getElementById("switchCheckDefault");
 
@@ -193,7 +270,8 @@
     const taxinfo = document.getElementsByClassName("tax-info");
 
     for (let info of taxinfo) {
-      info.style.display = info.style.display === "inline" ? "none" : "inline";
+      info.style.display =
+        info.style.display === "inline" ? "none" : "inline";
     }
   });
 </script>
