@@ -23,7 +23,7 @@ router.post("/", isLoggedIn, validateReview, wrapAsync(async(req,res)=>{
     let listing=await Listing.findById(req.params.id);
 
 
-    // Check if stayed (for verified badge only, not for blocking)
+    
     const hasStayed = await Booking.exists({ listing: req.params.id, user: req.user._id, status: "confirmed" });
 
     let newReview = new Review(req.body.review);
@@ -40,12 +40,12 @@ router.post("/", isLoggedIn, validateReview, wrapAsync(async(req,res)=>{
     res.redirect(`/listings/${listing._id}`);
 }));
 
-// API for REAL-TIME RATING
+
 router.post("/api", isLoggedIn, wrapAsync(async (req, res) => {
     const { id } = req.params;
 
 
-    // Check if stayed (for verified badge only)
+    
     const hasStayed = await Booking.exists({ listing: id, user: req.user._id, status: "confirmed" });
 
     const { rating } = req.body;
@@ -57,7 +57,7 @@ router.post("/api", isLoggedIn, wrapAsync(async (req, res) => {
 
     if (review) {
         review.rating     = rating;
-        review.isVerified = hasStayed; // Update verification status too
+        review.isVerified = hasStayed; 
         await review.save();
     } else {
         review = new Review({
@@ -71,7 +71,7 @@ router.post("/api", isLoggedIn, wrapAsync(async (req, res) => {
         await listing.save();
     }
 
-    // Recalculate average
+    
     const updatedListing = await Listing.findById(id).populate("reviews");
     const totalReviews = updatedListing.reviews.length;
     const sumRatings = updatedListing.reviews.reduce((acc, r) => acc + r.rating, 0);
@@ -85,7 +85,7 @@ router.post("/api", isLoggedIn, wrapAsync(async (req, res) => {
     });
 }));
 
-// API for FULL AJAX REVIEW (Comment + Rating)
+
 router.post("/api/full", isLoggedIn, wrapAsync(async (req, res) => {
     const { id } = req.params;
     const Review = require("../models/review.js");
@@ -124,15 +124,15 @@ router.delete("/:reviewId", isLoggedIn, isReviewAuthor, wrapAsync(async(req,res)
 
 
     await Listing.findByIdAndUpdate(id,{$pull:{reviews:reviewId}});
-    await Review.findByIdAndDelete(reviewId); // Corrected to actually delete the review document too
+    await Review.findByIdAndDelete(reviewId); 
         req.flash("success","Review Deleted!"); 
     res.redirect(`/listings/${id}`);
 }));
 
-// UPDATE REVIEW ROUTE
+
 router.put("/:reviewId", isLoggedIn, isReviewAuthor, validateReview, wrapAsync(async (req, res) => {
     let { id, reviewId } = req.params;
-    await Review.findByIdAndUpdate(reviewId, { ...req.body.review, createdAt: Date.now() }); // Update timestamp too
+    await Review.findByIdAndUpdate(reviewId, { ...req.body.review, createdAt: Date.now() }); 
     req.flash("success", "Review updated successfully!");
     res.redirect(`/listings/${id}`);
 }));

@@ -12,11 +12,11 @@ const{storage}=require("../cloudConfig.js");
 
 const upload = multer({storage});
 
-// ✅ OSM nominatim Geocoding Helper
+
 async function geocodeNominatim(location) {
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`, {
-            headers: { 'User-Agent': 'HotelifyApp/1.0' } // Required by OSM
+            headers: { 'User-Agent': 'HotelifyApp/1.0' } 
         });
         const data = await response.json();
         if (data && data.length > 0) {
@@ -28,11 +28,11 @@ async function geocodeNominatim(location) {
     } catch (e) {
         console.error("Geocoding error:", e);
     }
-    // Fallback if geocoding fails
-    return { type: "Point", coordinates: [77.2090, 28.6139] }; // New Delhi
+    
+    return { type: "Point", coordinates: [77.2090, 28.6139] }; 
 }
 
-// validateListing moved to middleware.js
+
 
 router.get("/",wrapAsync(async(req,res)=>{
     let filter = {};
@@ -52,7 +52,7 @@ router.get("/",wrapAsync(async(req,res)=>{
 
     
     
-// ... (skipped multer config)
+
 
 router.get("/new", isLoggedIn, isAdmin, (req,res)=>{
     res.render("listings/new.ejs" );
@@ -76,8 +76,7 @@ router.get("/search", async (req, res) => {
 router.get("/:id",wrapAsync(async(req,res)=>{
     let {id}=req.params;   
    
-        /* Nested populate- */
-
+        
     const listing = await Listing.findById(id)
         .populate({
             path: "reviews",
@@ -92,7 +91,7 @@ router.get("/:id",wrapAsync(async(req,res)=>{
         return res.redirect("/listings");
     }
 
-    // Calculate Rating Statistics
+    
     let averageRating = 0;
     let ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     if (listing.reviews && listing.reviews.length > 0) {
@@ -103,7 +102,7 @@ router.get("/:id",wrapAsync(async(req,res)=>{
         });
     }
 
-    // Check if the current user has a confirmed stay
+    
     let hasStayed = false;
     if (req.user) {
         hasStayed = await Booking.exists({ listing: id, user: req.user._id, status: "confirmed" });
@@ -118,7 +117,7 @@ router.post("/", isLoggedIn, isAdmin, upload.single('listing[image]'), validateL
     neweListing.owner = req.user._id;
     neweListing.image = {url: req.file?.path, filename: req.file?.filename};
     
-    // Geocode Location
+    
     neweListing.geometry = await geocodeNominatim(req.body.listing.location);
 
     await neweListing.save();
@@ -136,7 +135,7 @@ router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(async(req,res)=>{
     res.render("listings/edit.ejs",{listing});
 }));
 
-//wishlist (form-based, kept for fallback)
+
 router.post("/:id/wishlist", isLoggedIn, wrapAsync(async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(req.user._id);
@@ -152,7 +151,7 @@ router.post("/:id/wishlist", isLoggedIn, wrapAsync(async (req, res) => {
   res.redirect("back");
 }));
 
-// ✅ AJAX Wishlist API - returns JSON, no redirect
+
 router.post("/:id/wishlist/api", isLoggedIn, wrapAsync(async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(req.user._id);
@@ -169,7 +168,7 @@ router.post("/:id/wishlist/api", isLoggedIn, wrapAsync(async (req, res) => {
   res.json({ success: true, wishlisted });
 }));
 
-// ADD TO CART
+
 router.post("/:id/cart", isLoggedIn, wrapAsync(async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(req.user._id);
@@ -189,7 +188,7 @@ router.post("/:id/cart", isLoggedIn, wrapAsync(async (req, res) => {
 }));
 
 
-// AJAX Cart API - returns JSON, no redirect
+
 router.post("/:id/cart/api", isLoggedIn, wrapAsync(async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(req.user._id);
@@ -204,14 +203,14 @@ router.put("/:id", isLoggedIn, isOwner, upload.single('listing[image]'), validat
     let {id}=req.params;
     let listing = await Listing.findById(id);
     
-    // Update basic fields
+    
     Object.assign(listing, req.body.listing);
     
     if(typeof req.file !=="undefined"){
         listing.image = {url: req.file.path, filename: req.file.filename};
     }
 
-    // Re-geocode if location changed
+    
     if (req.body.listing.location) {
         listing.geometry = await geocodeNominatim(req.body.listing.location);
     }
@@ -229,7 +228,7 @@ router.delete("/:id", isLoggedIn, isOwner, wrapAsync(async(req,res)=>{
     res.redirect("/listings");
 }));
 
-// Booking logic (Manual Check-in/Check-out with Guests)
+
 router.post("/:id/book", isLoggedIn, wrapAsync(async (req, res) => {
     const { id } = req.params;
     const { checkIn, checkOut, guests, phone, email, message } = req.body;
@@ -264,7 +263,7 @@ router.post("/:id/book", isLoggedIn, wrapAsync(async (req, res) => {
 }));
 
 
-// ✅ Confirmation Page
+
 router.get("/:id/confirmation/:bookingId", isLoggedIn, wrapAsync(async (req, res) => {
     const { id, bookingId } = req.params;
     const booking = await Booking.findById(bookingId).populate("listing").populate("user");
@@ -276,7 +275,7 @@ router.get("/:id/confirmation/:bookingId", isLoggedIn, wrapAsync(async (req, res
 }));
 
 
-// AJAX Booking API - returns JSON, no redirect
+
 router.post("/:id/book/api", isLoggedIn, wrapAsync(async (req, res) => {
     const { id } = req.params;
     const { checkIn, checkOut, guests, phone, email, message } = req.body;

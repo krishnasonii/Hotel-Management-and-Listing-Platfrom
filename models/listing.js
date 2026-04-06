@@ -15,11 +15,7 @@ const listingSchema =new Schema({
         
        
         
-        /* type:String,
-        default:
-            "https://images.unsplash.com/photo-1757137911521-458496283554?q=80&w=388&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        set:(v)=>v===""
-        ?"https://images.unsplash.com/photo-1757137911521-458496283554?q=80&w=388&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D": v, */
+        
     },
     price:{
         type:Number,
@@ -40,8 +36,8 @@ const listingSchema =new Schema({
      category: String,
      geometry: {
         type: {
-            type: String, // Don't do `{ location: { type: String } }`
-            enum: ['Point'], // 'location.type' must be 'Point'
+            type: String, 
+            enum: ['Point'], 
             required: true
         },
         coordinates: {
@@ -61,6 +57,6 @@ const listingSchema =new Schema({
 
 
 
-const Listing= mongoose.model("Listing",listingSchema); // collection--  Listing
+const Listing= mongoose.model("Listing",listingSchema); 
 module.exports=Listing;
 

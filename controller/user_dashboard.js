@@ -6,7 +6,7 @@ module.exports.dashboard = async (req, res) => {
     const userId = req.user._id;
     const user = await User.findById(userId);
     
-    // Status Logic
+    
     const totalBookings = await Booking.countDocuments({ user: userId, status: { $ne: "cancelled" } });
     const upcomingStays = await Booking.find({ 
         user: userId, 
@@ -14,19 +14,19 @@ module.exports.dashboard = async (req, res) => {
         checkIn: { $gte: new Date() } 
     }).populate("listing").limit(3);
 
-    // Profile Completeness Calculation
+    
     const fields = ['email', 'phone', 'bio', 'username'];
     let filledCount = 0;
     fields.forEach(f => { if (user[f]) filledCount++; });
     const profileProgress = Math.round((filledCount / fields.length) * 100);
 
-    // Loyalty Tier Calculation
+    
     let loyaltyTier = "Guest";
     if (totalBookings >= 10) loyaltyTier = "Voyager (Gold)";
     else if (totalBookings >= 5) loyaltyTier = "Explorer (Silver)";
     else if (totalBookings >= 1) loyaltyTier = "Adventurer (Bronze)";
 
-    // Monthly Data for Chart (last 6 months)
+    
     const monthlyData = [];
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const now = new Date();

@@ -7,7 +7,7 @@ module.exports.adminDashboard = async (req, res) => {
     const totalUsers = await User.countDocuments();
     const totalBookings = await Booking.countDocuments();
     
-    // Aggregating total revenue
+    
     const bookings = await Booking.find({ status: "confirmed" });
     const totalRevenue = bookings.reduce((acc, curr) => acc + curr.totalPrice, 0);
 
@@ -44,7 +44,7 @@ module.exports.ownerDashboard = async (req, res) => {
         .filter(b => b.status === "confirmed")
         .reduce((acc, curr) => acc + curr.totalPrice, 0);
 
-    // Mock occupancy for UI demonstration
+    
     const occupancy = totalRooms > 0 ? 74 : 0; 
 
     res.render("dashboard/owner", {

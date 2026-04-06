@@ -20,13 +20,13 @@ body {
     overflow-x: hidden;
 }
 
-/* DASHBOARD WRAPPER */
+
 .dashboard-wrapper {
     display: flex;
     min-height: 100vh;
 }
 
-/* SIDEBAR */
+
 .sidebar {
     width: 260px;
     background: var(--sidebar-bg);
@@ -97,14 +97,14 @@ body {
     margin: 1rem 0;
 }
 
-/* MAIN PANEL */
+
 .main-panel {
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-/* HEADER */
+
 .dashboard-header {
     background: #fff;
     padding: 1rem 2rem;
@@ -140,7 +140,7 @@ body {
     object-fit: cover;
 }
 
-/* STATS CARDS */
+
 .stat-card {
     background: #fff;
     padding: 1.5rem;
@@ -189,13 +189,13 @@ body {
     display: inline-block;
 }
 
-/* COLOR VARIANTS */
+
 .bg-blue-light { background: #eff6ff; color: #2563eb; }
 .bg-orange-light { background: #fff7ed; color: #ea580c; }
 .bg-green-light { background: #f0fdf4; color: #16a34a; }
 .bg-purple-light { background: #faf5ff; color: #9333ea; }
 
-/* DATA CARDS (Glassmorphism inspired) */
+
 .data-card {
     background: white;
     border-radius: 24px;
@@ -211,7 +211,7 @@ body {
     color: #1e293b;
 }
 
-/* TABLES */
+
 .table {
     margin-bottom: 0;
 }
@@ -245,7 +245,7 @@ body {
 .badge-warning { background: #fef9c3; color: #854d0e; }
 .badge-danger { background: #fee2e2; color: #991b1b; }
 
-/* RESPONSIVENESS */
+
 @media (max-width: 768px) {
     .sidebar {
         position: fixed;
@@ -270,9 +270,9 @@ body {
     }
 }
 
-/* MISC */
+
 .cursor-pointer { cursor: pointer; }
-/* Side panels styling */
+
 .hotel-item:hover {
     border-color: var(--primary-color) !important;
     background: #f8fafc;

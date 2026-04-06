@@ -62,7 +62,7 @@
     </div>
 </div>
 
-<!-- IMAGE GALLERY (LUXURY PRESENTATION) -->
+
 <div class="row">
     <div class="col-md-10 offset-md-1">
         <div class="card border-0 shadow-lg overflow-hidden rounded-4">
@@ -72,7 +72,7 @@
 </div>
 
 <div class="row mt-5">
-    <!-- LEFT: DETAILS & REVIEWS -->
+    
     <div class="col-md-6 offset-md-1">
         <div class="d-flex justify-content-between align-items-center pb-4 border-bottom">
             <h3 class="fw-bold mb-0">Entire hotel hosted by @<%= listing.owner.username %></h3>
@@ -84,7 +84,7 @@
             <p class="text-muted leading-relaxed"><%= listing.description %></p>
         </div>
 
-        <!-- AMENITIES (MOCKUP) -->
+        
         <div class="py-4 border-bottom">
             <h5 class="fw-bold mb-4">What this place offers</h5>
             <div class="row g-3">
@@ -95,9 +95,9 @@
             </div>
         </div>
 
-        <!-- GUEST REVIEWS SECTION (MODERN) -->
+        
         <div class="py-5 border-top">
-            <!-- SYSTEM UPDATE LIVE BANNER -->
+            
             <div class="alert alert-warning border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center justify-content-center fw-bold">
                 <i class="fa-solid fa-circle-info me-2 text-primary"></i> SYSTEM UPDATE LIVE - ACTIONS ENABLED FOR TESTING
             </div>
@@ -109,7 +109,7 @@
                 <% } %>
             </div>
 
-            <!-- REVIEW SNAPSHOT CARD -->
+            
             <div class="card border-0 shadow-sm rounded-4 p-4 mb-5 bg-white">
                 <div class="row align-items-center text-center text-md-start">
                     <div class="col-md-4 review-snapshot-border border-md-end">
@@ -139,7 +139,7 @@
                 </div>
             </div>
 
-            <!-- LEAVE A REVIEW FORM -->
+            
             <% if(locals.currUser) { %>
                 <div class="card border-0 shadow-sm rounded-4 p-4 mb-5" style="background-color: #f8fafc;">
                     <h5 class="fw-bold mb-4 d-flex align-items-center"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i> Share Your Experience</h5>
@@ -171,7 +171,7 @@
                 </div>
             <% } %>
 
-            <!-- REVIEW FEED -->
+            
             <div class="row g-4">
                 <% if(listing.reviews.length === 0) { %>
                     <div class="col-12 text-center py-5">
@@ -229,7 +229,7 @@
         </div>
     </div>
 
-    <!-- RIGHT: STICKY BOOKING CARD -->
+    
     <div class="col-md-4">
         <% if(!locals.currUser || locals.currUser.role !== 'admin') { %>
         <div class="card border-0 shadow-lg p-4 rounded-4 sticky-top" style="top: 100px; z-index: 5;">
@@ -244,7 +244,7 @@
                 <% } %>
             </div>
 
-            <!-- BOOKING FORM -->
+            
             <div class="border rounded-3 mb-3 overflow-hidden">
                 <div class="row g-0">
                     <div class="col-6 border-end p-2 px-3 small position-relative">
@@ -313,7 +313,7 @@
     </div>
 </div>
 
-<!-- EDIT REVIEW MODAL -->
+
 <div class="modal fade" id="editReviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
@@ -355,7 +355,7 @@
     </div>
 </div>
 
-<!-- ACTIONS FOR OWNER -->
+
 <% if(locals.currUser && locals.currUser._id.equals(listing.owner._id)){ %>
     <div class="row py-5 mt-5 bg-dark">
         <div class="col-md-10 offset-md-1 d-flex justify-content-center gap-3">
@@ -368,7 +368,7 @@
     </div>
 <% } %>
 
-<!-- WHERE YOU'LL BE (MAP) -->
+
 <div class="row py-5 border-top">
     <div class="col-md-10 offset-md-1">
         <h4 class="fw-bold mb-4">Where you'll be</h4>
@@ -377,7 +377,7 @@
     </div>
 </div>
 
-<!-- Toast -->
+
 <div id="show-toast" style="
   position: fixed; bottom: 2rem; right: 2rem;
   background: #1a1a1a; color: #fff;
@@ -618,7 +618,7 @@
   }
 </script>
 
-<!-- 📱 MOBILE STICKY BOOKING BAR -->
+
 <% if(!locals.currUser || locals.currUser.role !== 'admin') { %>
 <div class="mobile-booking-bar d-none">
     <div>

@@ -4,12 +4,12 @@ const User = require("../models/user.js");
 const wrapAsync = require("../utils/Wrapasync.js");
 const passport = require("passport");
 
-// GET /auth/select-role
+
 router.get("/select-role", (req, res) => {
     res.render("auth/role-selection.ejs");
 });
 
-// Admin routes
+
 router.get("/admin/login", (req, res) => {
     res.render("admin/login.ejs");
 });
@@ -58,7 +58,7 @@ router.post("/admin/signup", wrapAsync(async(req, res, next) => {
     }
 }));
 
-// User routes redirection
+
 router.get("/user/login", (req, res) => {
     res.redirect("/login");
 });

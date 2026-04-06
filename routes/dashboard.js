@@ -3,7 +3,7 @@ const router = express.Router();
 const wrapAsync = require("../utils/Wrapasync.js");
 const { isLoggedIn } = require("../middleware.js");
 
-// Main Dashboard Redirection
+
 router.get("/", isLoggedIn, (req, res) => {
     if (req.user.role === "admin") {
         return res.redirect("/admin/dashboard");

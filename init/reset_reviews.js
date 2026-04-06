@@ -10,11 +10,11 @@ async function resetReviews() {
         await mongoose.connect(MONGO_URL);
         console.log("Connected to DB successfully");
 
-        // 1. Delete all reviews from the review collection
+        
         const reviewDeleteResult = await Review.deleteMany({});
         console.log(`Deleted ${reviewDeleteResult.deletedCount} reviews from the Review collection.`);
 
-        // 2. Clear the reviews array for all listings
+        
         const listingUpdateResult = await Listing.updateMany({}, { $set: { reviews: [] } });
         console.log(`Cleared reviews array for ${listingUpdateResult.modifiedCount} listings.`);
 

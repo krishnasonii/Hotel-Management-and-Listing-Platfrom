@@ -25,7 +25,7 @@ const initDB = async () => {
         owner: "68e9fa5f410480b6b66feee2",
         geometry: {
             type: "Point",
-            coordinates: [77.2090, 28.6139] // Default to New Delhi
+            coordinates: [77.2090, 28.6139] 
         }
     }));
     
