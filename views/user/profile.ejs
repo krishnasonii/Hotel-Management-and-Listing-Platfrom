@@ -1,0 +1,89 @@
+<% layout("/layouts/dashboard") %>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 text-center text-sm-start">
+            <h2 class="fw-bold">My Profile</h2>
+            <p class="text-muted">Manage your account information and preferences.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4">
+                <div class="mb-3 position-relative d-inline-block">
+                    <img src="https://ui-avatars.com/api/?name=<%= user.username %>&background=random&size=128" class="rounded-circle shadow-sm" alt="profile picture">
+                    <button class="btn btn-primary btn-sm rounded-circle position-absolute bottom-0 end-0 p-2"><i class="fa-solid fa-camera fa-xs"></i></button>
+                </div>
+                <h4 class="fw-bold mb-1"><%= user.username %></h4>
+                <p class="text-muted small mb-3"><%= user.email %></p>
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <span class="badge bg-primary-light text-primary px-3 py-2 rounded-pill"><%= user.role.toUpperCase() %></span>
+                    <span class="badge bg-success-light text-success px-3 py-2 rounded-pill">Verified</span>
+                </div>
+                <div class="border-top pt-3 text-start smaller">
+                    <p class="text-muted mb-2"><i class="fa-solid fa-calendar-day me-2"></i> Joined: March 2024</p>
+                    <p class="text-muted mb-0"><i class="fa-solid fa-location-dot me-2"></i> Location: Mumbai, India</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <ul class="nav nav-tabs border-0 mb-4" id="profileTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active rounded-pill px-4 me-2 border-0" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab" aria-controls="info" aria-selected="true">Account Info</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link rounded-pill px-4 me-2 border-0" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab" aria-controls="security" aria-selected="false">Security</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="profileTabContent">
+                        <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                            <form>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Username</label>
+                                        <input type="text" class="form-control rounded-3" value="<%= user.username %>" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Email Address</label>
+                                        <input type="email" class="form-control rounded-3" value="<%= user.email %>" readonly>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">Bio</label>
+                                        <textarea class="form-control rounded-3" rows="3" placeholder="Tell us something about yourself..."></textarea>
+                                    </div>
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" class="btn btn-primary rounded-pill px-5">Save Changes</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+                            <form>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label text-muted small">Current Password</label>
+                                        <input type="password" class="form-control rounded-3" placeholder="Enter current password">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">New Password</label>
+                                        <input type="password" class="form-control rounded-3" placeholder="New password">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Confirm New Password</label>
+                                        <input type="password" class="form-control rounded-3" placeholder="Confirm new password">
+                                    </div>
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" class="btn btn-danger rounded-pill px-5">Update Password</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

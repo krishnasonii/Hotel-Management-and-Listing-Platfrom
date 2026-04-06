@@ -1,277 +1,674 @@
 <% layout("/layouts/boilerplate") %>
 
 <style>
-/* FILTERS */
-#filters{
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-}
+  /* 🏨 GENERAL CARD STYLING */
+  .listing-card {
+    border: none !important;
+    margin-bottom: 2rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 1.25rem;
+    overflow: hidden;
+  }
+  .listing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+  }
+  .card-img-top {
+    border-radius: 1.25rem !important;
+    object-fit: cover !important;
+    height: 18rem !important;
+  }
+  .image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.25rem;
+  }
 
-.filter{
-  text-align: center;
-  margin-right: 2rem;
-  margin-top: 2rem;
-  opacity: 0.7;
-}
+  /* ❤️ WISHLIST BUTTON */
+  .wishlist-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 5;
+  }
+  .wishlist-btn:hover {
+    transform: scale(1.1);
+  }
+  .wishlist-btn i {
+    font-size: 1.2rem;
+    color: #ff385c;
+  }
 
-.filter:hover{
-  opacity: 1;
-  cursor: pointer;
-}
+  /* 🏷️ CATEGORY FILTERS (MOBILE RESPONSIVE) */
+  .filter-container {
+    background: #fff;
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 66px;
+    z-index: 100;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 2rem;
+  }
+  #filters {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    gap: 2rem;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  #filters::-webkit-scrollbar {
+    display: none;
+  }
+  .filter {
+    text-align: center;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    min-width: fit-content;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 0.5rem;
+  }
+  .filter:hover, .active-filter {
+    opacity: 1;
+    border-bottom: 2px solid #ff385c;
+  }
+  .active-filter {
+    color: #ff385c !important;
+  }
+  .filter a {
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .filter i {
+    font-size: 1.5rem;
+  }
+  .filter p {
+    font-size: 0.75rem;
+    margin: 0;
+    font-weight: 600;
+    white-space: nowrap;
+  }
 
-.filter p{
-  font-size: 0.8rem;
-}
+  /* 💰 TAX TOGGLE */
+  .tax-toggle {
+    border: 1px solid #ddd;
+    border-radius: 0.75rem;
+    padding: 0.7rem 1.25rem;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    height: 3.2rem;
+    margin-left: auto;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
 
-/* GST */
-.tax-info{
-  display: none;
-  color: green;
-  font-weight: 500;
-}
+  /* 📱 MOBILE ADJUSTMENTS */
+  @media (max-width: 992px) {
+    .filter-container {
+      top: 56px; /* Adjusted for smaller navbar */
+      padding: 0.25rem 0;
+    }
+    #filters {
+      gap: 1.25rem;
+      padding: 0.25rem 0;
+    }
+    .filter i {
+      font-size: 1.2rem;
+    }
+    .filter p {
+      font-size: 0.65rem;
+    }
+    .filter-row {
+      flex-direction: column;
+      align-items: stretch !important;
+      gap: 0.5rem;
+    }
+    .tax-toggle {
+      width: 100%;
+      margin: 0;
+      height: 2.8rem;
+      padding: 0 1rem;
+      border-radius: 0.5rem;
+    }
+    .listing-card {
+      margin-bottom: 1.5rem;
+    }
+    .card-img-top {
+      height: 14rem !important; /* Slightly more compact on mobile */
+    }
+  }
 
-.tax-toggle{
-  border: 1px solid black;
-  border-radius: 1rem;
-  height: 3.5rem;
-  padding: 1rem;
-  margin-top: 1rem;
-  margin-left: 5rem;
-  display: flex;
-  align-items: center;
-}
+  @media (max-width: 576px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .card-body {
+      padding-top: 0.75rem !important;
+    }
+    .price {
+      font-size: 1.1rem;
+    }
+  }
 
-/* CARD */
-.listing-card{
-  height: 100%;
-  transition: 0.2s ease;
-  border-radius: 15px;
-  overflow: hidden;
-}
+  /* 🌟 OTHER UI */
+  .star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    font-size: 0.9rem;
+  }
+  .star-rating label { color: #ddd; cursor: pointer; }
+  .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #ffc107; }
+  .star-rating input { display: none; }
+  
+  .btn-primary-custom {
+    background-color: #ff385c;
+    color: white;
+    border: none;
+  }
+  .btn-primary-custom:hover {
+    background-color: #e00b41;
+    color: white;
+  }
 
-.listing-card:hover{
-  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-  transform: translateY(-3px);
-}
-
-.title-row{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.title-row b{
-  display: -webkit-box;
-  -webkit-line-clamp: 2;      
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.3rem;
-  min-height: 2.6rem;         
-}
-
-.book-btn{
-  white-space: nowrap;
-  font-size: 0.75rem;
-  padding: 0.35rem 0.7rem;
-}
-
-.listing-link{
-  text-decoration: none;
-  color: inherit;
-}
-
-/* ❤️ Wishlist */
-.image-container {
-  position: relative;
-}
-
-.wishlist-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: white;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  border: none;
-  cursor: pointer;
-  transition: 0.2s ease;
-  z-index: 5;
-}
-
-.wishlist-btn i {
-  font-size: 18px;
-  color: #ff385c;
-}
-
-.wishlist-btn:hover {
-  transform: scale(1.1);
-}
+  .rating-badge {
+    background: #f8f9fa;
+    border: 1px solid #eee;
+    padding: 0.3rem 0.7rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    transition: all 0.2s ease;
+  }
+  .listing-card:hover .rating-badge {
+    background: #fff;
+    border-color: #ffc107;
+    box-shadow: 0 4px 10px rgba(255, 193, 7, 0.15);
+  }
 </style>
 
-
 <!-- ================= FILTER SECTION ================= -->
-<div id="filters">
-
-  <div class="filter">
-    <a href="/listings?category=trending">
-      <div><i class="fa-solid fa-fire"></i></div>
-      <p>Trending</p>
-    </a>
-  </div>
-
-  <div class="filter">
-    <a href="/listings?category=rooms">
-      <div><i class="fa-solid fa-bed"></i></div>
-      <p>Rooms</p>
-    </a>
-  </div>
-
-  <div class="filter">
-    <a href="/listings?category=iconiccities">
-      <div><i class="fa-solid fa-mountain-city"></i></div>
-      <p>Iconic Cities</p>
-    </a>
-  </div>
-
-  <div class="filter">
-    <a href="/listings?category=mountains">
-      <div><i class="fa-solid fa-mountain"></i></div>
-      <p>Mountains</p>
-    </a>
-  </div>
-
-  <div class="filter">
-    <a href="/listings?category=castles">
-      <div><i class="fa-solid fa-chess-rook"></i></div>
-      <p>Castles</p>
-    </a>
-  </div>
-
-  <div class="filter">
-    <a href="/listings?category=pool">
-      <div><i class="fa-solid fa-person-swimming"></i></div>
-      <p>Pool</p>
-    </a>
-  </div>
-
-  <div class="filter">
-    <a href="/listings?category=camping">
-      <div><i class="fa-solid fa-campground"></i></div>
-      <p>Camping</p>
-    </a>
-  </div>
-
-  <div class="filter">
-    <a href="/listings?category=farms">
-      <div><i class="fa-solid fa-tractor"></i></div>
-      <p>Farms</p>
-    </a>
-  </div>
-
-  <div class="filter">
-    <a href="/listings?category=artic">
-      <div><i class="fa-solid fa-snowflake"></i></div>
-      <p>Artic</p>
-    </a>
-  </div>
-
-  <!-- GST Toggle -->
-  <div class="tax-toggle">
-    <div class="form-check-reverse form-switch">
-      <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
-      <label class="form-check-label" for="switchCheckDefault">
-        Display total after taxes
-      </label>
-    </div>
-  </div>
-
-</div>
-
-
-<!-- ================= LISTINGS ================= -->
-<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-4">
-
-  <% if (alllistings.length === 0) { %>
-    <h3>No listings found</h3>
-  <% } %>
-
-  <% alllistings.forEach(list => { %>
-    <div class="col mb-4">
-
-      <div class="card listing-card h-100">
-
-        <!-- IMAGE + HEART -->
-        <div class="image-container">
-
-          <a href="/listings/<%= list._id %>" class="listing-link">
-            <img src="<%= list.image.url %>" class="card-img-top" alt="listing_image">
-          </a>
-
-          <% if(currUser){ %>
-            <form action="/listings/<%= list._id %>/wishlist" method="POST">
-              <button type="submit"
-                      class="wishlist-btn"
-                      onclick="event.stopPropagation();">
-
-                <% if(currUser.wishlist && 
-                     currUser.wishlist.some(id => id.toString() === list._id.toString())) { %>
-
-                  <i class="fa-solid fa-heart"></i>
-
-                <% } else { %>
-
-                  <i class="fa-regular fa-heart"></i>
-
-                <% } %>
-
-              </button>
-            </form>
-          <% } %>
-
-        </div>
-
-        <!-- BODY -->
-        <div class="card-body">
-          <div class="title-row">
-            <b><%= list.title %></b>
-            <span class="btn btn-sm btn-danger book-btn">
-              Book Now
-            </span>
-          </div>
-
-          <p class="card-text mt-2">
-            ₹<%= list.price?.toLocaleString("en-IN") || "N/A" %>/night
-            <span class="tax-info">
-              | Total: ₹<%= (list.price * 1.18).toLocaleString("en-IN") %>
-            </span>
-          </p>
-        </div>
-
+<div class="filter-container">
+  <div class="container d-flex align-items-center filter-row">
+    <div id="filters">
+      <div class="filter <%= !locals.currCategory ? 'active-filter' : '' %>">
+        <a href="/listings">
+          <i class="fa-solid fa-border-all"></i>
+          <p>All</p>
+        </a>
       </div>
-
+      <div class="filter <%= locals.currCategory === 'trending' ? 'active-filter' : '' %>">
+        <a href="/listings?category=trending">
+          <i class="fa-solid fa-fire"></i>
+          <p>Trending</p>
+        </a>
+      </div>
+      <div class="filter <%= locals.currCategory === 'rooms' ? 'active-filter' : '' %>">
+        <a href="/listings?category=rooms">
+          <i class="fa-solid fa-bed"></i>
+          <p>Rooms</p>
+        </a>
+      </div>
+      <div class="filter <%= locals.currCategory === 'iconiccities' ? 'active-filter' : '' %>">
+        <a href="/listings?category=iconiccities">
+          <i class="fa-solid fa-mountain-city"></i>
+          <p>Cities</p>
+        </a>
+      </div>
+      <div class="filter <%= locals.currCategory === 'mountains' ? 'active-filter' : '' %>">
+        <a href="/listings?category=mountains">
+          <i class="fa-solid fa-mountain"></i>
+          <p>Mountains</p>
+        </a>
+      </div>
+      <div class="filter <%= locals.currCategory === 'castles' ? 'active-filter' : '' %>">
+        <a href="/listings?category=castles">
+          <i class="fa-solid fa-chess-rook"></i>
+          <p>Castles</p>
+        </a>
+      </div>
+      <div class="filter <%= locals.currCategory === 'pool' ? 'active-filter' : '' %>">
+        <a href="/listings?category=pool">
+          <i class="fa-solid fa-person-swimming"></i>
+          <p>Pools</p>
+        </a>
+      </div>
+      <div class="filter <%= locals.currCategory === 'camping' ? 'active-filter' : '' %>">
+        <a href="/listings?category=camping">
+          <i class="fa-solid fa-campground"></i>
+          <p>Camping</p>
+        </a>
+      </div>
+      <div class="filter <%= locals.currCategory === 'farms' ? 'active-filter' : '' %>">
+        <a href="/listings?category=farms">
+          <i class="fa-solid fa-tractor"></i>
+          <p>Farms</p>
+        </a>
+      </div>
+      <div class="filter <%= locals.currCategory === 'artic' ? 'active-filter' : '' %>">
+        <a href="/listings?category=artic">
+          <i class="fa-solid fa-snowflake"></i>
+          <p>Artic</p>
+        </a>
+      </div>
     </div>
-  <% }) %>
 
+    <!-- GST Toggle -->
+    <div class="tax-toggle">
+      <div class="form-check-reverse form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
+        <label class="form-check-label small fw-bold text-muted" for="switchCheckDefault">
+          Display total after taxes
+        </label>
+      </div>
+    </div>
+  </div>
 </div>
 
+<div class="container pb-5">
+  <% if (alllistings.length === 0) { %>
+    <div class="text-center my-5 py-5 bg-light rounded-4 border">
+        <i class="fa-solid fa-hotel fa-4x text-muted mb-4 opacity-50"></i>
+        <h3 class="fw-bold">No properties found here</h3>
+        <p class="text-muted mb-4">Try checking another category or clearing your search.</p>
+        <a href="/listings" class="btn btn-primary-custom rounded-pill px-5">View All Properties</a>
+    </div>
+  <% } else { %>
+  <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 g-4">
+    <% alllistings.forEach(list => { %>
+      <div class="col">
+        <div class="card listing-card h-100">
+          <div class="image-container">
+            <a href="/listings/<%= list._id %>">
+              <img src="<%= list.image.url %>" class="card-img-top" alt="hotel image">
+            </a>
+            <button
+              class="wishlist-btn"
+              data-listing-id="<%= list._id %>"
+              data-wishlisted="<%= locals.currUser && currUser.wishlist && currUser.wishlist.some(id => id.toString() === list._id.toString()) ? 'true' : 'false' %>"
+              onclick="toggleWishlist(this); event.stopPropagation();"
+            >
+              <i class="<%= locals.currUser && currUser.wishlist && currUser.wishlist.some(id => id.toString() === list._id.toString()) ? 'fa-solid' : 'fa-regular' %> fa-heart"></i>
+            </button>
+          </div>
+          <div class="card-body px-1">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <h6 class="card-title fw-bold mb-0 text-truncate" style="max-width: 75%;"><%= list.title %></h6>
+              <div class="text-muted small">
+                  <i class="fa-solid fa-location-dot me-1"></i><%= list.location %>
+              </div>
+              <span class="badge rounded-pill bg-light text-dark border fw-normal small px-2 py-1"><%= list.category %></span>
+              <div class="rating-badge fw-bold">
+                <i class="fa-solid fa-star text-warning"></i>
+                <% if(list.reviews && list.reviews.length > 0) { %>
+                  <% 
+                    let sum = list.reviews.reduce((acc, r) => acc + r.rating, 0);
+                    let avg = (sum / list.reviews.length).toFixed(1);
+                  %>
+                  <span id="avg-<%= list._id %>" class="avg-rating-text"><%= avg %></span>
+                  <span id="count-<%= list._id %>" class="text-muted fw-normal" style="font-size: 0.7rem;">(<%= list.reviews.length %>)</span>
+                <% } else { %>
+                  <span id="avg-<%= list._id %>" class="avg-rating-text d-none">4.0</span>
+                  <span id="count-<%= list._id %>" class="text-muted fw-normal" style="font-size: 0.7rem;">No Reviews</span>
+                <% } %>
+              </div>
+            </div>
+            <p class="text-muted small mb-3"><%= list.location %>, <%= list.country %></p>
+            
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+              <div class="price fw-bold">
+                ₹<%= list.price?.toLocaleString("en-IN") %>
+                <span class="text-muted small fw-normal">/ night</span>
+              </div>
+              <% if(!locals.currUser || locals.currUser.role !== 'admin') { %>
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-sm btn-outline-dark rounded-pill px-2 fw-bold d-flex align-items-center justify-content-center"
+                  style="width: 32px; height: 32px;"
+                  onclick="openReviewModal('<%= list._id %>', '<%= list.title %>', event)"
+                  title="Add Review"
+                >
+                  <i class="fa-regular fa-comment-dots text-danger"></i>
+                </button>
+                <button
+                  class="btn btn-sm btn-danger px-4 rounded-pill fw-bold"
+                  data-id="<%= list._id %>"
+                  data-title="<%= list.title %>"
+                  data-price="<%= list.price || 0 %>"
+                  onclick="handleReserveClick(this, event)"
+                >
+                  Reserve Now
+                </button>
+              </div>
+              <% } %>
+            </div>
+            
+            <div class="tax-info text-success small fw-bold mt-2" style="display: none;">
+              Total: ₹<%= ((list.price || 0) * 1.18).toLocaleString("en-IN") %> (inc. tax)
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
 
-<!-- GST SCRIPT -->
+<!-- ===== BOOKING MODAL ===== -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header border-0 bg-danger text-white p-4">
+        <div>
+          <h5 class="modal-title fw-bold">Reserve Your Stay</h5>
+          <small id="bookingModalSubtitle" class="opacity-75"></small>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label fw-bold small">Check-in</label>
+            <input type="date" id="modalCheckIn" class="form-control rounded-3" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-bold small">Check-out</label>
+            <input type="date" id="modalCheckOut" class="form-control rounded-3" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-bold small">Guests</label>
+            <input type="number" id="modalGuests" class="form-control rounded-3" value="1" min="1">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-bold small">Email Address</label>
+            <input type="email" id="modalEmail" class="form-control rounded-3" value="<%= locals.currUser ? currUser.email : '' %>" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-bold small">Phone Number</label>
+            <input type="tel" id="modalPhone" class="form-control rounded-3" placeholder="+91 ..." required>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-bold small text-uppercase">Message for Host (Optional)</label>
+            <textarea id="modalMessage" class="form-control rounded-3" rows="2" placeholder="Any special requests?"></textarea>
+          </div>
+          <div class="col-12" id="bookingPriceSummary" style="display:none;">
+            <div class="alert alert-light border rounded-3 small mb-0">
+              <div class="d-flex justify-content-between mb-1"><span>Base Rate</span><span id="pricePerNight"></span></div>
+              <div class="d-flex justify-content-between mb-1"><span>Nights</span><span id="numNights"></span></div>
+              <hr class="my-2">
+              <div class="d-flex justify-content-between fw-bold"><span>Total Amount</span><span id="totalPriceDisplay"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 p-4 pt-0">
+        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="confirmBookingBtn" onclick="confirmBooking()">Confirm Reservation</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header border-0 p-4">
+        <h4 class="modal-title fw-bold">Add a Review</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 pt-0">
+        <p class="text-muted small mb-4" id="reviewModalSubtitle"></p>
+        
+        <div class="mb-4 text-center">
+            <label class="form-label small fw-bold text-muted d-block mb-3 text-uppercase">Rate your experience</label>
+            <div class="d-flex align-items-center justify-content-center gap-3">
+                <button type="button" class="btn btn-outline-dark rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px;" onclick="changeModalRating(-1)">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
+                
+                <div class="text-center" style="min-width: 120px;">
+                    <h2 id="modalRatingValue" class="fw-bold mb-1">5</h2>
+                    <div id="modalRatingStars" class="text-warning small mb-0 fs-5">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-outline-dark rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px;" onclick="changeModalRating(1)">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+            <input type="hidden" id="modalRatingInput" value="5">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label small fw-bold text-muted text-uppercase">Comment</label>
+            <textarea id="modalComment" rows="3" class="form-control rounded-3" placeholder="Tell us about your stay..." required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer border-0 p-4 pt-0">
+        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="submitReviewBtn" onclick="submitQuickReview()">Submit Review</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="wishlist-toast" style="position: fixed; bottom: 2rem; right: 2rem; background: #333; color: #fff; padding: 0.8rem 1.5rem; border-radius: 2rem; opacity: 0; transition: 0.3s; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"></div>
+
 <script>
-  const taxSwitch = document.getElementById("switchCheckDefault");
+  const _isLoggedIn = <%= (typeof currUser !== "undefined" && currUser) ? 'true' : 'false' %>;
+  let _bookingListingId = null;
+  let _bookingPricePerNight = 0;
 
-  taxSwitch.addEventListener("click", () => {
-    const taxinfo = document.getElementsByClassName("tax-info");
-
-    for (let info of taxinfo) {
-      info.style.display =
-        info.style.display === "inline" ? "none" : "inline";
+  function handleReserveClick(btn, event) {
+    if (!_isLoggedIn) {
+      window.location.href = '/login';
+      return;
     }
+    event.stopPropagation();
+    openBookingModal(btn.dataset.id, btn.dataset.title, parseFloat(btn.dataset.price));
+  }
+
+  function openBookingModal(listingId, title, pricePerNight) {
+    _bookingListingId = listingId;
+    _bookingPricePerNight = pricePerNight;
+    document.getElementById('bookingModalSubtitle').textContent = title;
+    
+    const today = new Date();
+    const tom = new Date(today); tom.setDate(tom.getDate() + 1);
+    const dayAfter = new Date(today); dayAfter.setDate(dayAfter.getDate() + 3);
+
+    document.getElementById('modalCheckIn').value = tom.toISOString().split('T')[0];
+    document.getElementById('modalCheckOut').value = dayAfter.toISOString().split('T')[0];
+    
+    updatePriceSummary();
+    new bootstrap.Modal(document.getElementById('bookingModal')).show();
+  }
+
+  function updatePriceSummary() {
+    const checkIn = new Date(document.getElementById('modalCheckIn').value);
+    const checkOut = new Date(document.getElementById('modalCheckOut').value);
+    if (!checkIn || !checkOut || checkOut <= checkIn) return;
+    
+    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+    const isTaxOn = document.getElementById('switchCheckDefault').checked;
+    const rate = isTaxOn ? _bookingPricePerNight * 1.18 : _bookingPricePerNight;
+    
+    document.getElementById('pricePerNight').textContent = '₹' + rate.toLocaleString('en-IN') + (isTaxOn ? ' (inc. tax)' : '');
+    document.getElementById('numNights').textContent = nights;
+    document.getElementById('totalPriceDisplay').textContent = '₹' + (rate * nights).toLocaleString('en-IN');
+    document.getElementById('bookingPriceSummary').style.display = 'block';
+  }
+
+  document.getElementById('modalCheckIn').addEventListener('change', updatePriceSummary);
+  document.getElementById('modalCheckOut').addEventListener('change', updatePriceSummary);
+  document.getElementById('switchCheckDefault').addEventListener('change', function() {
+    document.querySelectorAll('.tax-info').forEach(e => e.style.display = this.checked ? 'block' : 'none');
+    if (document.getElementById('bookingPriceSummary').style.display !== 'none') updatePriceSummary();
   });
+
+  async function confirmBooking() {
+    const btn = document.getElementById('confirmBookingBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+
+    const email    = document.getElementById('modalEmail').value;
+    const phone    = document.getElementById('modalPhone').value;
+    const message  = document.getElementById('modalMessage').value;
+
+    if (!email || !phone) {
+      showToast('⚠️ Please provide contact details');
+      btn.disabled = false;
+      btn.innerHTML = 'Confirm Reservation';
+      return;
+    }
+
+    try {
+      const res = await fetch(`/listings/${_bookingListingId}/book/api`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          checkIn: document.getElementById('modalCheckIn').value,
+          checkOut: document.getElementById('modalCheckOut').value,
+          guests: document.getElementById('modalGuests').value,
+          email, phone, message
+        })
+      });
+
+      if (res.status === 401) { window.location.href = '/login'; return; }
+      const data = await res.json();
+      
+      if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('bookingModal')).hide();
+        window.location.href = `/listings/${_bookingListingId}/confirmation/${data.bookingId}`;
+      } else {
+        showToast('❌ ' + (data.error || 'Failed to reserve'));
+      }
+    } catch(e) {
+      showToast('❌ Error connecting to server');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Confirm Reservation';
+    }
+  }
+
+  async function toggleWishlist(btn) {
+    const id = btn.dataset.listingId;
+    try {
+      const res = await fetch(`/listings/${id}/wishlist/api`, { method: 'POST' });
+      if (res.status === 401) { window.location.href = '/login'; return; }
+      const data = await res.json();
+      if (data.success) {
+        btn.querySelector('i').className = data.wishlisted ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+        showToast(data.wishlisted ? '❤️ Added to wishlist' : '💔 Removed from wishlist');
+      }
+    } catch(e) { console.error(e); }
+  }
+
+  /* --- QUICK REVIEW LOGIC --- */
+  let _reviewListingId = null;
+  let _currentModalRating = 5;
+
+  function openReviewModal(listingId, title, event) {
+    if (!_isLoggedIn) {
+      window.location.href = '/login';
+      return;
+    }
+    if (event) event.stopPropagation();
+    _reviewListingId = listingId;
+    _currentModalRating = 5;
+    document.getElementById('reviewModalSubtitle').textContent = title;
+    document.getElementById('modalComment').value = '';
+    updateModalRatingUI();
+    new bootstrap.Modal(document.getElementById('reviewModal')).show();
+  }
+
+  function changeModalRating(delta) {
+    _currentModalRating += delta;
+    if (_currentModalRating < 1) _currentModalRating = 1;
+    if (_currentModalRating > 5) _currentModalRating = 5;
+    updateModalRatingUI();
+  }
+
+  function updateModalRatingUI() {
+    document.getElementById('modalRatingValue').textContent = _currentModalRating;
+    document.getElementById('modalRatingInput').value = _currentModalRating;
+    const stars = document.getElementById('modalRatingStars');
+    stars.innerHTML = '';
+    for(let i=0; i<_currentModalRating; i++) stars.innerHTML += '<i class="fa-solid fa-star"></i> ';
+  }
+
+  async function submitQuickReview() {
+    const btn = document.getElementById('submitReviewBtn');
+    const comment = document.getElementById('modalComment').value.trim();
+    
+    if(!comment) { showToast('⚠️ Please add a comment'); return; }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Submitting...';
+
+    try {
+      const res = await fetch(`/listings/${_reviewListingId}/reviews/api/full`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: _currentModalRating, comment })
+      });
+
+      if (res.status === 401) { window.location.href = '/login'; return; }
+      const data = await res.json();
+      
+      if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
+        showToast('✅ Review added successfully!');
+        
+        // Dynamic Update on Card
+        const avgEl = document.getElementById(`avg-${_reviewListingId}`);
+        const countEl = document.getElementById(`count-${_reviewListingId}`);
+        if(avgEl) {
+            avgEl.textContent = data.average;
+            avgEl.classList.remove('d-none');
+        }
+        if(countEl) countEl.textContent = `(${data.count})`;
+      } else {
+        showToast('❌ ' + (data.error || 'Failed to add review'));
+      }
+    } catch(e) {
+      showToast('❌ Error connecting to server');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Submit Review';
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('wishlist-toast');
+    t.textContent = msg; t.style.opacity = '1';
+    setTimeout(() => t.style.opacity = '0', 3000);
+  }
 </script>

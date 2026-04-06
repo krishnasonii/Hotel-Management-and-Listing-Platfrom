@@ -1,0 +1,64 @@
+<% layout("/layouts/dashboard") %>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold">Hotel Management</h2>
+            <p class="text-muted">Add, edit, or delete listings across the platform.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="/listings/new" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="fa-solid fa-plus me-2"></i> Add New Hotel</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Hotel Details</th>
+                                    <th>Location</th>
+                                    <th>Price/Night</th>
+                                    <th>Owner</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% allHotels.forEach(hotel => { %>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <% if (hotel.image && hotel.image.url) { %>
+                                                    <img src="<%= hotel.image.url %>" class="rounded-3 me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                <% } %>
+                                                <div>
+                                                    <span class="fw-bold d-block"><%= hotel.title %></span>
+                                                    <span class="text-muted smaller"><%= hotel._id %></span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><i class="fa-solid fa-location-dot me-1 text-danger small"></i> <%= hotel.location %>, <%= hotel.country %></td>
+                                        <td><span class="fw-bold text-success">₹<%= hotel.price.toLocaleString("en-IN") %></span></td>
+                                        <td><span class="badge bg-light text-dark fw-normal border"><%= hotel.owner.username %></span></td>
+                                        <td><span class="badge bg-primary-light text-primary px-3 py-2 rounded-pill"><%= hotel.category %></span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/listings/<%= hotel._id %>/edit" class="btn btn-light btn-sm rounded-circle me-1 border shadow-sm"><i class="fa-solid fa-pen fa-xs"></i></a>
+                                                <form action="/listings/<%= hotel._id %>?_method=DELETE" method="POST" class="d-inline">
+                                                    <button class="btn btn-light btn-sm rounded-circle text-danger border shadow-sm"><i class="fa-solid fa-trash fa-xs"></i></button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

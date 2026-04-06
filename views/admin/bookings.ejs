@@ -1,0 +1,157 @@
+<% layout("/layouts/dashboard") %>
+<style>
+    @media (max-width: 768px) {
+        .admin-desktop-view { display: none !important; }
+        .admin-mobile-view { display: block !important; }
+        .filter-card { padding: 1.5rem !important; }
+    }
+    .admin-mobile-view { display: none; }
+    
+    .admin-booking-card {
+        background: #fff;
+        border-radius: 1.25rem;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+</style>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold">Booking Management</h2>
+            <p class="text-muted">View all platform bookings and reservations.</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-4 rounded-4 h-100 border-start border-success border-5">
+                <h6 class="text-muted mb-2 small">Total Bookings</h6>
+                <div class="d-flex align-items-end justify-content-between">
+                    <h3 class="fw-bold mb-0"><%= allBookings.length %></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <form action="/admin/bookings" method="GET" class="row g-3 align-items-end">
+                        <div class="col-12 col-md-2">
+                            <label class="form-label small fw-bold text-muted">Status</label>
+                            <select name="status" class="form-select rounded-pill shadow-none">
+                                <option value="all" <%= filters.status === 'all' ? 'selected' : '' %>>All Status</option>
+                                <option value="pending" <%= filters.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                <option value="confirmed" <%= filters.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                                <option value="cancelled" <%= filters.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="form-label small fw-bold text-muted">Username</label>
+                            <input type="text" name="username" class="form-control rounded-pill shadow-none" placeholder="Search user..." value="<%= filters.username || '' %>">
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="form-label small fw-bold text-muted">Min Price (₹)</label>
+                            <input type="number" name="minPrice" class="form-control rounded-pill shadow-none" placeholder="Min" value="<%= filters.minPrice || '' %>">
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="form-label small fw-bold text-muted">Max Price (₹)</label>
+                            <input type="number" name="maxPrice" class="form-control rounded-pill shadow-none" placeholder="Max" value="<%= filters.maxPrice || '' %>">
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="form-label small fw-bold text-muted">Check-In After</label>
+                            <input type="date" name="startDate" class="form-control rounded-pill shadow-none" value="<%= filters.startDate || '' %>">
+                        </div>
+                        <div class="col-12 col-md-2 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary rounded-pill px-3 shadow-none flex-grow-1">Filter</button>
+                            <a href="/admin/bookings" class="btn btn-light border rounded-pill px-3 shadow-none flex-grow-1 text-center py-2">Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <!-- Desktop View -->
+                    <div class="table-responsive admin-desktop-view">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>User</th>
+                                    <th>Hotel</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% allBookings.forEach(booking => { %>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="fw-bold"><%= booking.user ? booking.user.username : 'Unknown User' %></span>
+                                            </div>
+                                        </td>
+                                        <td><span class="fw-bold"><%= booking.listing ? booking.listing.title : 'Unknown Hotel' %></span></td>
+                                        <td><%= new Date(booking.checkIn).toLocaleDateString("en-IN") %></td>
+                                        <td><%= new Date(booking.checkOut).toLocaleDateString("en-IN") %></td>
+                                        <td>₹<%= booking.totalPrice.toLocaleString("en-IN") %></td>
+                                        <td>
+                                            <% if (booking.status === 'confirmed') { %>
+                                                <span class="badge bg-success text-white px-3 py-2 rounded-pill small">Confirmed</span>
+                                            <% } else if (booking.status === 'cancelled') { %>
+                                                <span class="badge bg-danger text-white px-3 py-2 rounded-pill small">Cancelled</span>
+                                            <% } else { %>
+                                                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill small"><%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %></span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile View -->
+                    <div class="admin-mobile-view">
+                        <% allBookings.forEach(booking => { %>
+                            <div class="admin-booking-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-0">@<%= booking.user ? booking.user.username : 'Unknown' %></h6>
+                                        <p class="small text-muted mb-0"><%= booking.listing ? booking.listing.title : 'Unknown Hotel' %></p>
+                                    </div>
+                                    <% if (booking.status === 'confirmed') { %>
+                                        <span class="badge bg-success text-white rounded-pill px-2 small">Confirmed</span>
+                                    <% } else if (booking.status === 'cancelled') { %>
+                                        <span class="badge bg-danger text-white rounded-pill px-2 small">Cancelled</span>
+                                    <% } else { %>
+                                        <span class="badge bg-warning text-dark rounded-pill px-2 small">Pending</span>
+                                    <% } %>
+                                </div>
+                                <div class="row g-2 border-top pt-2 mt-2">
+                                    <div class="col-6">
+                                        <label class="smaller text-muted d-block">Stay Period</label>
+                                        <span class="small fw-bold"><%= new Date(booking.checkIn).toLocaleDateString("en-IN") %> - <%= new Date(booking.checkOut).toLocaleDateString("en-IN") %></span>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <label class="smaller text-muted d-block">Revenue</label>
+                                        <span class="small fw-bold text-dark">₹<%= booking.totalPrice.toLocaleString("en-IN") %></span>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

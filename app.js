@@ -3,8 +3,8 @@ if (process.env.NODE_ENV !== "production") {
     require('dotenv').config();
 }
 
-// const tls = require("tls");
-// tls.DEFAULT_MIN_VERSION = "TLSv1.2";
+const tls = require("tls");
+tls.DEFAULT_MIN_VERSION = "TLSv1.2";
 
 
 const express=require("express");
@@ -15,11 +15,16 @@ const Listing =require("./models/listing.js");
 const methodOverride = require("method-override");
 const ejsMate =require("ejs-mate");
 const ExpressError=require("./utils/ExpressError.js");
+const { checkBlocked } = require("./middleware.js");
 
 
 const listingRouter=require("./routes/listings.js");
 const reviewRouter=require("./routes/review.js");
 const  userRouter=require("./routes/user.js");
+const dashboardRouter=require("./routes/dashboard.js");
+const adminRouter = require("./routes/admin.js");
+const userDashboardRouter = require("./routes/userDashboard.js");
+const authRouter = require("./routes/auth.js");
 
 const session=require("express-session");
 const MongoStore = require('connect-mongo');
@@ -47,10 +52,6 @@ async function connectWithRetry() {
     try {
         await mongoose.connect(dbUrl, {
             serverSelectionTimeoutMS: 5000,
-            ssl: true,
-            tls: true,
-            tlsAllowInvalidCertificates: false,
-            retryWrites: true
         });
 
         console.log("Connected to MongoDB Atlas!");
@@ -63,11 +64,6 @@ connectWithRetry();
 
 const store = MongoStore.create({
     mongoUrl: dbUrl,
-    mongoOptions: {
-        ssl: true,
-        tls: true,
-        tlsAllowInvalidCertificates: false
-    },
     crypto: {
         secret: process.env.SECRET
     },
@@ -83,12 +79,11 @@ const sessionOptions={
     store,
     secret: process.env.SECRET,
     resave:false,
-    saveUninitialized:false, 
+    saveUninitialized:true, 
     
     cookie:{
-        expires:Date.now() + 7*24*60*60*100,
-        maxAge:7*24*60*60*100,
-        httpOnly:true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
     },
 };
 
@@ -104,18 +99,23 @@ passport.use(new LocalStrategy(User.authenticate()));
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
- 
+
+app.use(checkBlocked);
+
 app.use((req,res,next)=>{
     res.locals.success=req.flash("success");
-   res.locals.error=req.flash("error");
+    res.locals.error=req.flash("error");
     res.locals.currUser=req.user;
-   next();
+    next();
 });
 
 
 app.use("/listings",listingRouter); 
- 
 app.use("/listings/:id/reviews",reviewRouter);
+app.use("/dashboard", dashboardRouter);
+app.use("/admin", adminRouter);
+app.use("/user", userDashboardRouter);
+app.use("/auth", authRouter);
 app.use("/",userRouter);
 
 
@@ -126,7 +126,7 @@ app.use((req, res, next) => {
 app.use((err,req,res,next)=>{
     
    let {statusCode=500,message="something wrong"}=err;
-  res.status(statusCode).render("error.ejs",{message});
+  res.status(statusCode).render("error.ejs",{message, currUser: req.user || null});
  
    
 

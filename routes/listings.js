@@ -1,24 +1,38 @@
 const express=require("express");
 const router=express.Router();
 const wrapAsync=require("../utils/Wrapasync.js");
-const {listingSchema}=require("../schema.js");  
-const ExpressError=require("../utils/ExpressError.js");
 const Listing =require("../models/listing.js");
 const User = require("../models/user");
+const Booking = require("../models/booking");
+const Review = require("../models/review");
+const { isLoggedIn, isOwner, validateListing, isAdmin } = require("../middleware.js");
 
 const multer  = require('multer');
 const{storage}=require("../cloudConfig.js");
 
 const upload = multer({storage});
 
-const validateListing=(req,res,next)=>{
-    let {error}=listingSchema.validate(req.body);
-    if(error){
-        throw new ExpressError(400,error);
-    }else{
-        next();
+// ✅ OSM nominatim Geocoding Helper
+async function geocodeNominatim(location) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`, {
+            headers: { 'User-Agent': 'HotelifyApp/1.0' } // Required by OSM
+        });
+        const data = await response.json();
+        if (data && data.length > 0) {
+            return {
+                type: "Point",
+                coordinates: [parseFloat(data[0].lon), parseFloat(data[0].lat)]
+            };
+        }
+    } catch (e) {
+        console.error("Geocoding error:", e);
     }
-} 
+    // Fallback if geocoding fails
+    return { type: "Point", coordinates: [77.2090, 28.6139] }; // New Delhi
+}
+
+// validateListing moved to middleware.js
 
 router.get("/",wrapAsync(async(req,res)=>{
     let filter = {};
@@ -30,21 +44,18 @@ router.get("/",wrapAsync(async(req,res)=>{
         filter.category = req.query.category;
     }
 
-    let alllistings = await Listing.find(filter);
+    let alllistings = await Listing.find(filter).populate("reviews");
+    let currCategory = req.query.category;
    
-    res.render("listings/index.ejs",{alllistings});
+    res.render("listings/index.ejs",{alllistings, currCategory});
 }));
 
     
     
-router.get("/new",(req,res)=>{
-    console.log(req.user);
-    if(!req.isAuthenticated()){ 
-        req.flash("error","you must be logged in to create listings");
-        return res.redirect("/login");
-    }
-    res.render("listings/new.ejs" );
+// ... (skipped multer config)
 
+router.get("/new", isLoggedIn, isAdmin, (req,res)=>{
+    res.render("listings/new.ejs" );
 });
 
 router.get("/search", async (req, res) => {
@@ -57,7 +68,7 @@ router.get("/search", async (req, res) => {
             { country: { $regex: q, $options: "i" } },
             { description: { $regex: q, $options: "i" } },
         ]
-    });
+    }).populate("reviews");
 
     res.render("listings/index.ejs", { alllistings: listinged });
 });
@@ -67,158 +78,239 @@ router.get("/:id",wrapAsync(async(req,res)=>{
    
         /* Nested populate- */
 
-   const listing=await Listing.findById(id)
-   .populate({
-    path:"reviews",
-    populate:{
-        path:"author",
-    },
-   
-   })
-    .populate("owner")
-   
-    
-        if(!listing){
-            req.flash("error","Listing you requested for doesn't exist");
-            return res.redirect("/listings");
-        }
-        console.log(listing);
-    res.render("listings/show.ejs",{listing});
+    const listing = await Listing.findById(id)
+        .populate({
+            path: "reviews",
+            populate: {
+                path: "author",
+            },
+        })
+        .populate("owner");
+
+    if (!listing) {
+        req.flash("error", "Listing you requested for doesn't exist");
+        return res.redirect("/listings");
+    }
+
+    // Calculate Rating Statistics
+    let averageRating = 0;
+    let ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    if (listing.reviews && listing.reviews.length > 0) {
+        const total = listing.reviews.reduce((acc, r) => acc + r.rating, 0);
+        averageRating = (total / listing.reviews.length).toFixed(1);
+        listing.reviews.forEach(r => {
+            if (ratingCounts[r.rating] !== undefined) ratingCounts[r.rating]++;
+        });
+    }
+
+    // Check if the current user has a confirmed stay
+    let hasStayed = false;
+    if (req.user) {
+        hasStayed = await Booking.exists({ listing: id, user: req.user._id, status: "confirmed" });
+    }
+
+    res.render("listings/show.ejs", { listing, hasStayed, averageRating, ratingCounts });
 }));
 
 
-router.post("/", upload.single('listing[image]'),validateListing,  wrapAsync(async(req,res,next)=>{ 
-      if(!req.isAuthenticated()){ 
-        req.flash("error","you must be logged in to create listings");
-        return res.redirect("/login");
-    }
-       
-   let result= listingSchema.validate(req.body);
-   console.log(result); 
-   if(result.error){  
-    throw new ExpressError(400,result.error);
-   } 
-            let url=req.file?.path;
-            
-           
-            let filename=req.file?.filename;  
-           
+router.post("/", isLoggedIn, isAdmin, upload.single('listing[image]'), validateListing, wrapAsync(async(req,res,next)=>{ 
+    const neweListing = new Listing(req.body.listing);  
+    neweListing.owner = req.user._id;
+    neweListing.image = {url: req.file?.path, filename: req.file?.filename};
+    
+    // Geocode Location
+    neweListing.geometry = await geocodeNominatim(req.body.listing.location);
 
-    const neweListing =new Listing(req.body.listing);  
-    
-    neweListing.owner=req.user._id;
-    neweListing.image={url,filename};
     await neweListing.save();
-    
     req.flash("success","New Listing Created!"); 
     res.redirect("/listings");
-
-}));  
+}));
  
-router.get("/:id/edit",wrapAsync(async(req,res)=>{
+router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(async(req,res)=>{
     let{id}=req.params;
-    let listing=await Listing.findById(id);
-      if(!req.isAuthenticated()){ 
-        req.flash("error","you must be logged in to create listings");
-        return res.redirect("/login");
-    }
-
-             let listings =await Listing.findById(id);
-    if(!listings.owner._id.equals(res.locals.currUser._id)){
-        req.flash("error","you don't have permission to edit");
-        return res.redirect(`/listings/${id}`);
-    }
-    
-        if(!listing){
-            req.flash("error","Listing you requested for doesn't exist");
-            return res.redirect("/listings");
-        }          
-
- 
-
+    let listing = await Listing.findById(id);
+    if(!listing){
+        req.flash("error","Listing you requested for doesn't exist");
+        return res.redirect("/listings");
+    }          
     res.render("listings/edit.ejs",{listing});
-
 }));
 
-//wishlist
-
-router.post("/:id/wishlist", wrapAsync(async (req, res) => {
-  if (!req.isAuthenticated()) {
-    req.flash("error", "Please login first");
-    return res.redirect("/login");
+//wishlist (form-based, kept for fallback)
+router.post("/:id/wishlist", isLoggedIn, wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(req.user._id);
+  const index = user.wishlist.indexOf(id);
+  if (index === -1) {
+    user.wishlist.push(id);
+    req.flash("success", "Added to wishlist");
+  } else {
+    user.wishlist.splice(index, 1);
+    req.flash("success", "Removed from wishlist");
   }
+  await user.save();
+  res.redirect("back");
+}));
 
+// ✅ AJAX Wishlist API - returns JSON, no redirect
+router.post("/:id/wishlist/api", isLoggedIn, wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(req.user._id);
+  const index = user.wishlist.findIndex(wid => wid.toString() === id);
+  let wishlisted;
+  if (index === -1) {
+    user.wishlist.push(id);
+    wishlisted = true;
+  } else {
+    user.wishlist.splice(index, 1);
+    wishlisted = false;
+  }
+  await user.save();
+  res.json({ success: true, wishlisted });
+}));
+
+// ADD TO CART
+router.post("/:id/cart", isLoggedIn, wrapAsync(async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(req.user._id);
 
-  const index = user.wishlist.indexOf(id);
+  const index = user.cart.indexOf(id);
 
   if (index === -1) {
-    user.wishlist.push(id);   // add
-    req.flash("success", "Added to wishlist");
+    user.cart.push(id);
+    req.flash("success", "Added to Cart!");
   } else {
-    user.wishlist.splice(index, 1); // remove
-    req.flash("success", "Removed from wishlist");
+    user.cart.splice(index, 1);
+    req.flash("success", "Removed from Cart!");
   }
 
   await user.save();
-  res.redirect(`/listings/${id}`);
+  res.redirect("back");
 }));
 
-router.put("/:id", upload.single('listing[image]'),validateListing,wrapAsync(async(req,res)=>{
+
+// AJAX Cart API - returns JSON, no redirect
+router.post("/:id/cart/api", isLoggedIn, wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(req.user._id);
+  const index = user.cart.findIndex(cid => cid.toString() === id);
+  let inCart;
+  if (index === -1) { user.cart.push(id); inCart = true; }
+  else              { user.cart.splice(index, 1); inCart = false; }
+  await user.save();
+  res.json({ success: true, inCart });
+}));
+router.put("/:id", isLoggedIn, isOwner, upload.single('listing[image]'), validateListing, wrapAsync(async(req,res)=>{
     let {id}=req.params;
-     
-      if(!req.isAuthenticated()){ 
-        req.flash("error","you must be logged in to create listings");
-        return res.redirect("/login");
-    }
+    let listing = await Listing.findById(id);
     
+    // Update basic fields
+    Object.assign(listing, req.body.listing);
     
-    
-    let listings=await Listing.findById(id);
-    if(!listings.owner._id.equals(res.locals.currUser._id)){
-        req.flash("error","you don't have permission to edit");
-        return res.redirect(`/listings/${id}`);
+    if(typeof req.file !=="undefined"){
+        listing.image = {url: req.file.path, filename: req.file.filename};
     }
 
-   
-   
+    // Re-geocode if location changed
+    if (req.body.listing.location) {
+        listing.geometry = await geocodeNominatim(req.body.listing.location);
+    }
 
-             let listing= await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-   
-   if(typeof req.file !=="undefined"){
-          let url=req.file.path;
-      let filename=req.file.filename;
-        listing.image={url,filename};
-        await listing.save();
-   }
-        req.flash("success"," Listing Updated!"); 
-
+    await listing.save();
+    req.flash("success"," Listing Updated!"); 
     res.redirect(`/listings/${id}`);
 }));
 
 
-router.delete("/:id",wrapAsync(async(req,res)=>{
+router.delete("/:id", isLoggedIn, isOwner, wrapAsync(async(req,res)=>{
     let {id}=req.params;
-      if(!req.isAuthenticated()){ 
-        req.flash("error","you must be logged in to delete listings");
-        return res.redirect("/login");
-    }
-
-      let listings=await Listing.findById(id);
-    if(!listings.owner._id.equals(res.locals.currUser._id)){
-        req.flash("error","you don't have permission to edit");
-        return res.redirect(`/listings/${id}`);
-    }
-
-    let deleted=await Listing.findByIdAndDelete(id);
-     req.flash("success","Deleted Successfully!"); 
-
-   
+    await Listing.findByIdAndDelete(id);
+    req.flash("success","Deleted Successfully!"); 
     res.redirect("/listings");
 }));
 
+// Booking logic (Manual Check-in/Check-out with Guests)
+router.post("/:id/book", isLoggedIn, wrapAsync(async (req, res) => {
+    const { id } = req.params;
+    const { checkIn, checkOut, guests, phone, email, message } = req.body;
+    
+    const listing = await Listing.findById(id);
+    if(!listing) {
+        req.flash("error", "Listing not found");
+        return res.redirect("/listings");
+    }
+
+    const checkInDate = checkIn ? new Date(checkIn) : new Date();
+    const checkOutDate = checkOut ? new Date(checkOut) : new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    const numGuests = guests ? parseInt(guests) : 1;
+
+    const diffDays = Math.max(1, Math.ceil(Math.abs(checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)));
+
+    const newBooking = new Booking({
+        listing: id,
+        user: req.user._id,
+        checkIn: checkInDate,
+        checkOut: checkOutDate,
+        guests: numGuests,
+        phone: phone || req.user.phone || "N/A",
+        email: email || req.user.email || "not-provided@example.com",
+        message: message || "",
+        totalPrice: (listing.price || 0) * diffDays,
+        status: "confirmed"
+    });
+    await newBooking.save();
+    req.flash("success", `Booking successful for ${listing.title}!`);
+    res.redirect(`/listings/${id}/confirmation/${newBooking._id}`);
+}));
 
 
+// ✅ Confirmation Page
+router.get("/:id/confirmation/:bookingId", isLoggedIn, wrapAsync(async (req, res) => {
+    const { id, bookingId } = req.params;
+    const booking = await Booking.findById(bookingId).populate("listing").populate("user");
+    if (!booking) {
+        req.flash("error", "Booking not found");
+        return res.redirect("/listings");
+    }
+    res.render("listings/confirmation.ejs", { booking });
+}));
+
+
+// AJAX Booking API - returns JSON, no redirect
+router.post("/:id/book/api", isLoggedIn, wrapAsync(async (req, res) => {
+    const { id } = req.params;
+    const { checkIn, checkOut, guests, phone, email, message } = req.body;
+    const listing = await Listing.findById(id);
+    if (!listing) return res.status(404).json({ success: false, error: "Listing not found" });
+    
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    const numGuests = guests ? parseInt(guests) : 1;
+    const diffDays = Math.max(1, Math.ceil(Math.abs(checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)));
+    const totalPrice = (listing.price || 0) * diffDays;
+
+    const newBooking = new Booking({
+        listing: id,
+        user: req.user._id,
+        checkIn: checkInDate,
+        checkOut: checkOutDate,
+        guests: numGuests,
+        phone: phone || "N/A",
+        email: email || req.user.email || "not-provided@example.com",
+        message: message || "",
+        totalPrice,
+        status: "confirmed"
+    });
+    await newBooking.save();
+    res.json({
+        success: true,
+        bookingId: newBooking._id,
+        title: listing.title,
+        nights: diffDays,
+        totalPrice,
+        checkIn: checkInDate.toDateString(),
+        checkOut: checkOutDate.toDateString()
+    });
+}));
 
 module.exports=router;

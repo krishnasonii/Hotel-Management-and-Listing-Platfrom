@@ -1,0 +1,249 @@
+<% layout("/layouts/dashboard") %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    :root { --admin-primary: #4f46e5; --admin-secondary: #ec4899; }
+    .metric-card { transition: all 0.3s ease; border: 1px solid rgba(0,0,0,0.05); }
+    .metric-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    .activity-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .status-confirmed { background-color: #10b981; }
+    .status-cancelled { background-color: #ef4444; }
+    .status-pending { background-color: #f59e0b; }
+    .shortcut-btn { padding: 0.75rem; border-radius: 12px; background: #f9fafb; color: #374151; transition: all 0.2s; }
+    .shortcut-btn:hover { background: #f3f4f6; color: var(--admin-primary); transform: scale(1.02); }
+</style>
+
+<div class="container-fluid pb-5 pt-3">
+    <!-- TOP HEADER -->
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-8">
+            <h1 class="fw-bold display-6 mb-1">Command Center</h1>
+            <p class="text-muted fs-5">Platform metrics at your fingertips</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <button class="btn btn-outline-dark rounded-pill px-4 fw-bold me-2"><i class="fa-solid fa-download me-2"></i>Export</button>
+            <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">Real-time Ops</button>
+        </div>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="icon-box bg-primary-light text-primary rounded-4 items-center d-flex px-3"><i class="fa-solid fa-users"></i></div>
+                    <span class="text-success small fw-bold">+5.2%</span>
+                </div>
+                <div class="text-muted small fw-bold text-uppercase mb-1">Total Users</div>
+                <h2 class="fw-bold mb-0"><%= stats.totalUsers %></h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="icon-box bg-success-light text-success rounded-4 items-center d-flex px-3"><i class="fa-solid fa-hotel"></i></div>
+                    <span class="text-success small fw-bold">+2.1%</span>
+                </div>
+                <div class="text-muted small fw-bold text-uppercase mb-1">Listings</div>
+                <h2 class="fw-bold mb-0"><%= stats.totalHotels %></h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="icon-box bg-purple-light text-purple rounded-4 items-center d-flex px-3"><i class="fa-solid fa-calendar-check"></i></div>
+                    <span class="text-danger small fw-bold">-1.2%</span>
+                </div>
+                <div class="text-muted small fw-bold text-uppercase mb-1">Bookings</div>
+                <h2 class="fw-bold mb-0"><%= stats.totalBookings %></h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm rounded-4 p-4" style="background: linear-gradient(135deg, #4f46e5, #4338ca); color: #fff;">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="icon-box bg-white bg-opacity-25 text-white rounded-4 items-center d-flex px-3"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                    <span class="text-white small fw-bold">+9.8%</span>
+                </div>
+                <div class="text-white-50 small fw-bold text-uppercase mb-1">Total Revenue</div>
+                <h2 class="fw-bold mb-0">₹<%= stats.totalRevenue.toLocaleString("en-IN") %></h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANALYTICS GRID -->
+    <div class="row g-4 mb-5">
+        <!-- Main Stats Column -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Weekly Revenue History</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm rounded-pill px-3 fw-bold" type="button">7-Day Trends</button>
+                    </div>
+                </div>
+                <div style="height: 350px;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- RECENT ACTIVITY -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Latest Platform Activity</h5>
+                        <a href="/admin/bookings" class="btn btn-outline-dark btn-sm rounded-pill px-4 fs-7 fw-bold">Audit All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light rounded-3">
+                                <tr class="text-muted small text-uppercase">
+                                    <th class="border-0">Action</th>
+                                    <th class="border-0">User info</th>
+                                    <th class="border-0">Listing details</th>
+                                    <th class="border-0">Date</th>
+                                    <th class="border-0 text-end">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% recentBookings.forEach(booking => { %>
+                                    <tr>
+                                        <td class="border-0">
+                                            <div class="d-flex align-items-center">
+                                                <div class="activity-dot me-2 <%= booking.status === 'confirmed' ? 'status-confirmed' : booking.status === 'cancelled' ? 'status-cancelled' : 'status-pending' %>"></div>
+                                                <span class="small fw-bold text-capitalize"><%= booking.status %> Booking</span>
+                                            </div>
+                                        </td>
+                                        <td class="border-0">
+                                            <div class="small">
+                                                <div class="fw-bold"><%= booking.user.username %></div>
+                                                <div class="text-muted"><%= booking.user.email %></div>
+                                            </div>
+                                        </td>
+                                        <td class="border-0">
+                                            <div class="small fw-bold"><%= booking.listing.title %></div>
+                                        </td>
+                                        <td class="border-0">
+                                            <span class="small text-muted"><%= booking.createdAt.toLocaleString() %></span>
+                                        </td>
+                                        <td class="border-0 text-end fw-bold">₹<%= booking.totalPrice.toLocaleString("en-IN") %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Insights -->
+        <div class="col-lg-4">
+            <!-- STATUS PIE CHART -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h5 class="fw-bold mb-4">Booking Status Distribution</h5>
+                <div style="height: 250px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <!-- QUICK SHORTCUTS -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h5 class="fw-bold mb-4">Admin Hub</h5>
+                <div class="d-grid gap-3">
+                    <a href="/admin/users" class="shortcut-btn text-decoration-none d-flex align-items-center">
+                        <i class="fa-solid fa-users-gear me-3 fs-5"></i>
+                        <span class="fw-bold small">User Management</span>
+                    </a>
+                    <a href="/admin/hotels" class="shortcut-btn text-decoration-none d-flex align-items-center">
+                        <i class="fa-solid fa-building-circle-check me-3 fs-5"></i>
+                        <span class="fw-bold small">Property Inventory</span>
+                    </a>
+                    <a href="/admin/bookings" class="shortcut-btn text-decoration-none d-flex align-items-center">
+                        <i class="fa-solid fa-file-invoice me-3 fs-5"></i>
+                        <span class="fw-bold small">Audit Bookings</span>
+                    </a>
+                    <a href="/admin/reports" class="shortcut-btn text-decoration-none d-flex align-items-center">
+                        <i class="fa-solid fa-chart-line me-3 fs-5"></i>
+                        <span class="fw-bold small">Analytics Reports</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- SYSTEM STATUS -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
+                <h6 class="fw-bold text-muted text-uppercase mb-3" style="font-size: 0.7rem;">System Status</h6>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="status-confirmed rounded-circle me-2" style="width: 8px; height:8px;"></div>
+                    <span class="small fw-bold">Main Server: Operational</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="status-confirmed rounded-circle me-2" style="width: 8px; height:8px;"></div>
+                    <span class="small fw-bold">Database: Stable</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="status-pending rounded-circle me-2" style="width: 8px; height:8px;"></div>
+                    <span class="small fw-bold">Cache Service: Latency spikes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const primaryColor = '#4f46e5';
+        const secondaryColor = '#ec4899';
+
+        // REVENUE LINE CHART
+        const revHistory = <%- JSON.stringify(revenueHistory) %>;
+        new Chart(document.getElementById('revenueChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: revHistory.map(d => d.date),
+                datasets: [{
+                    label: 'Daily Revenue',
+                    data: revHistory.map(d => d.amount),
+                    borderColor: primaryColor,
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // STATUS PIE CHART
+        const statusData = <%- JSON.stringify(statusCounts) %>;
+        new Chart(document.getElementById('statusChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Confirmed', 'Cancelled', 'Pending'],
+                datasets: [{
+                    data: [statusData.confirmed, statusData.cancelled, statusData.pending],
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold' } } }
+                },
+                cutout: '70%'
+            }
+        });
+    });
+</script>

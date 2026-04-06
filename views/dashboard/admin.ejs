@@ -1,0 +1,176 @@
+<% layout("/layouts/dashboard") %>
+
+<div class="stats-container">
+    <div class="stat-card">
+        <div class="stat-icon bg-blue-gradient">
+            <i class="fa-solid fa-hotel"></i>
+        </div>
+        <div class="label">Total Hotels</div>
+        <div class="value"><%= stats.totalListings %></div>
+        <div class="stat-trend text-primary bg-blue-light"><i class="fa-solid fa-arrow-up"></i> +12%</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon bg-orange-gradient">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="label">Total Users</div>
+        <div class="value"><%= stats.totalUsers %></div>
+        <div class="stat-trend text-warning bg-orange-light"><i class="fa-solid fa-arrow-up"></i> +5%</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon bg-green-gradient">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div class="label">Total Bookings</div>
+        <div class="value"><%= stats.totalBookings %></div>
+        <div class="stat-trend text-success bg-green-light"><i class="fa-solid fa-arrow-up"></i> +8%</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon bg-purple-gradient">
+            <i class="fa-solid fa-dollar-sign"></i>
+        </div>
+        <div class="label">Total Revenue</div>
+        <div class="value">₹<%= stats.totalRevenue.toLocaleString("en-IN") %></div>
+        <div class="stat-trend text-secondary bg-purple-light"><i class="fa-solid fa-arrow-up"></i> +15%</div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Booking Overview Graph -->
+    <div class="col-lg-8">
+        <div class="data-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">Booking Overview</h5>
+                <select class="form-select w-auto">
+                    <option>Last 6 Months</option>
+                </select>
+            </div>
+            <canvas id="bookingChart" style="height: 300px; width: 100%;"></canvas>
+        </div>
+    </div>
+    
+    <!-- Recent Bookings Table -->
+    <div class="col-lg-4">
+        <div class="data-card h-100">
+            <h5 class="card-title">Recent Transactions</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (recentBookings.length === 0) { %>
+                            <tr><td colspan="3" class="text-center py-4">No recent bookings</td></tr>
+                        <% } %>
+                        <% recentBookings.forEach(booking => { %>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://ui-avatars.com/api/?name=<%= booking.user.username %>&size=32" class="avatar-sm me-2">
+                                        <span><%= booking.user.username %></span>
+                                    </div>
+                                </td>
+                                <td>₹<%= booking.totalPrice.toLocaleString("en-IN") %></td>
+                                <td><span class="status-badge badge-success"><%= booking.status %></span></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Platform Quick Management -->
+    <div class="col-12">
+        <div class="data-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">Recent Listings</h5>
+                <a href="/listings" class="btn btn-primary btn-sm rounded-pill px-4">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle">
+                    <thead>
+                        <tr>
+                            <th>Hotel Name</th>
+                            <th>Owner</th>
+                            <th>Location</th>
+                            <th>Price/Night</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% allListings.forEach(hotel => { %>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="<%= hotel.image.url %>" class="avatar-sm me-2 object-fit-cover shadow-sm">
+                                        <span class="fw-bold"><%= hotel.title %></span>
+                                    </div>
+                                </td>
+                                <td><%= hotel.owner?.username || 'System' %></td>
+                                <td><%= hotel.location %></td>
+                                <td>₹<%= hotel.price.toLocaleString("en-IN") %></td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm rounded-circle" data-bs-toggle="dropdown">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu shadow border-0">
+                                            <li><a class="dropdown-item" href="/listings/<%= hotel._id %>">View</a></li>
+                                            <li><a class="dropdown-item" href="/dashboard/admin/listing/delete/<%= hotel._id %>">Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('bookingChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Bookings',
+                data: [120, 190, 300, 250, 420, 560],
+                borderColor: '#4f46e5',
+                fill: true,
+                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Revenue',
+                data: [400, 450, 200, 300, 400, 480],
+                borderColor: '#6366f1',
+                fill: false,
+                tension: 0.4,
+                borderDash: [5, 5]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { display: false } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>

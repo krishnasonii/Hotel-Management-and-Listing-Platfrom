@@ -1,0 +1,170 @@
+<% layout("/layouts/dashboard") %>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold text-dark mb-4">Welcome back, <%= currUser.username %>!</h2>
+    </div>
+</div>
+
+<div class="stats-container">
+    <div class="stat-card">
+        <div class="stat-icon bg-blue-gradient">
+            <i class="fa-solid fa-bed"></i>
+        </div>
+        <div class="label">Total Rooms</div>
+        <div class="value"><%= stats.totalRooms %></div>
+        <div class="stat-trend text-primary bg-blue-light"><i class="fa-solid fa-hotel me-1"></i> Active Hotels</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon bg-green-gradient">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div class="label">Total Bookings</div>
+        <div class="value"><%= stats.totalBookings %></div>
+        <div class="stat-trend text-success bg-green-light"><i class="fa-solid fa-arrow-up me-1"></i> +8 Today</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon bg-purple-gradient">
+            <i class="fa-solid fa-wallet"></i>
+        </div>
+        <div class="label">Total Revenue</div>
+        <div class="value">₹<%= stats.totalRevenue.toLocaleString("en-IN") %></div>
+        <div class="stat-trend text-secondary bg-purple-light"><i class="fa-solid fa-arrow-up me-1"></i> +₹38,200 Today</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon bg-orange-gradient">
+            <i class="fa-solid fa-percent"></i>
+        </div>
+        <div class="label">Occupancy</div>
+        <div class="value"><%= stats.occupancy %>%</div>
+        <div class="stat-trend text-warning bg-orange-light"><i class="fa-solid fa-chart-line me-1"></i> Stable</div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Manage Your Hotels Card -->
+    <div class="col-lg-7">
+        <div class="data-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">Manage Your Hotels</h5>
+                <a href="/listings/new" class="btn btn-outline-primary btn-sm rounded-pill px-3">Add Hotel</a>
+            </div>
+            
+            <% if (listings.length === 0) { %>
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-hotel fa-4x text-light mb-3"></i>
+                    <p class="text-muted">You haven't listed any hotels yet.</p>
+                    <a href="/listings/new" class="btn btn-primary rounded-pill mt-2">Create Listing</a>
+                </div>
+            <% } else { %>
+                <% listings.forEach(hotel => { %>
+                    <div class="hotel-item d-flex align-items-center p-3 border rounded-4 mb-3 hover-shadow transition">
+                        <img src="<%= hotel.image.url %>" class="rounded-3 me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 fw-bold"><%= hotel.title %></h6>
+                            <p class="text-muted small mb-0"><i class="fa-solid fa-location-dot me-1"></i> <%= hotel.location %></p>
+                            <div class="stars text-warning small">
+                                <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-regular fa-star"></i>
+                                <span class="text-muted ms-1">(4.0)</span>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <a href="/listings/<%= hotel._id %>/edit" class="btn btn-light btn-sm rounded-circle me-1"><i class="fa-solid fa-pen"></i></a>
+                            <a href="/listings/<%= hotel._id %>" class="btn btn-primary btn-sm rounded-pill px-3">View</a>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } %>
+        </div>
+    </div>
+    
+    <!-- Earnings Overview Pie Chart -->
+    <div class="col-lg-5">
+        <div class="data-card h-100">
+            <h5 class="card-title">Earnings Overview</h5>
+            <div class="chart-container py-3" style="position: relative; height:250px;">
+                <canvas id="earningsChart"></canvas>
+                <div class="chart-center-text text-center" style="position: absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+                    <h3 class="fw-bold mb-0 text-dark"><%= stats.occupancy %>%</h3>
+                    <span class="text-muted small">Target Reach</span>
+                </div>
+            </div>
+            <div class="mt-4">
+               <div class="d-flex justify-content-between mb-2">
+                   <span class="small text-muted"><i class="fa-solid fa-circle text-primary me-2"></i> Standard</span>
+                   <span class="small fw-bold">₹3,30,000</span>
+               </div>
+               <div class="d-flex justify-content-between mb-2">
+                   <span class="small text-muted"><i class="fa-solid fa-circle text-success me-2"></i> Deluxe</span>
+                   <span class="small fw-bold">₹4,00,000</span>
+               </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Recent Bookings for Owner -->
+    <div class="col-12">
+        <div class="data-card">
+            <h5 class="card-title">Recent Bookings</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Guest</th>
+                            <th>Room Type</th>
+                            <th>Check-In</th>
+                            <th>Check-Out</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (bookings.length === 0) { %>
+                            <tr><td colspan="5" class="text-center py-4">No bookings yet for your hotels</td></tr>
+                        <% } %>
+                        <% bookings.forEach(booking => { %>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://ui-avatars.com/api/?name=<%= booking.user.username %>" class="avatar-sm me-2">
+                                        <span class="fw-bold"><%= booking.user.username %></span>
+                                    </div>
+                                </td>
+                                <td><span class="text-muted"><%= booking.listing.category || 'Standard' %></span></td>
+                                <td><%= booking.checkIn.toDateString() %></td>
+                                <td><%= booking.checkOut.toDateString() %></td>
+                                <td><span class="status-badge badge-success"><%= booking.status %></span></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const occupancyVal = <%= stats.occupancy %>;
+    const targetVal = <%= 100 - stats.occupancy %>;
+    const earningsCtx = document.getElementById('earningsChart').getContext('2d');
+    new Chart(earningsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Revenue', 'Target'],
+            datasets: [{
+                data: [occupancyVal, targetVal],
+                backgroundColor: ['#4f46e5', '#f3f4f6'],
+                borderWidth: 0,
+                cutout: '80%'
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            maintainAspectRatio: false
+        }
+    });
+</script>

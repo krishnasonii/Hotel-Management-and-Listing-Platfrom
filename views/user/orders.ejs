@@ -1,0 +1,66 @@
+<% layout("/layouts/dashboard") %>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold">My Service Orders</h2>
+            <p class="text-muted">Track your food and room service orders.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <% if (myOrders.length === 0) { %>
+                        <div class="text-center py-5">
+                            <i class="fa-solid fa-utensils fa-4x text-light mb-3"></i>
+                            <p class="text-muted">You haven't placed any orders yet.</p>
+                            <p class="text-muted small">Enjoy our room service during your stay!</p>
+                        </div>
+                    <% } else { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Hotel</th>
+                                        <th>Items Ordered</th>
+                                        <th>Total Amount</th>
+                                        <th>Order Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% myOrders.forEach(order => { %>
+                                        <tr>
+                                            <td><span class="fw-bold"><%= order.hotel.title %></span></td>
+                                            <td>
+                                                <% order.items.forEach(item => { %>
+                                                    <span class="badge bg-light text-dark fw-normal border me-1"><%= item.qty %>x <%= item.name %></span>
+                                                <% }) %>
+                                            </td>
+                                            <td><span class="fw-bold text-success">₹<%= order.totalAmount.toLocaleString("en-IN") %></span></td>
+                                            <td><%= order.createdAt.toDateString() %></td>
+                                            <td>
+                                                <% if (order.status === 'completed') { %>
+                                                    <span class="badge bg-success text-white px-3 py-2 rounded-pill">Delivered</span>
+                                                <% } else if (order.status === 'pending') { %>
+                                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">In Progress</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-secondary text-white px-3 py-2 rounded-pill"><%= order.status %></span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-light btn-sm rounded-pill px-3">Help</button>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

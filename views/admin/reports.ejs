@@ -1,0 +1,107 @@
+<% layout("/layouts/dashboard") %>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold">Financial Reports & Analytics</h2>
+            <p class="text-muted">Analyze revenue trends and booking performance.</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Monthly Revenue Growth</h5>
+                    <div class="chart-container py-3" style="position: relative; height:350px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-4">
+                <h5 class="fw-bold mb-4">Revenue Breakdown</h5>
+                <div class="chart-container py-3" style="position: relative; height:250px;">
+                    <canvas id="breakdownChart"></canvas>
+                </div>
+                <div class="mt-4 border-top pt-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="small text-muted"><i class="fa-solid fa-circle text-primary me-2"></i> Room Bookings</span>
+                        <span class="small fw-bold">75%</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="small text-muted"><i class="fa-solid fa-circle text-success me-2"></i> Service Orders</span>
+                        <span class="small fw-bold">18%</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="small text-muted"><i class="fa-solid fa-circle text-warning me-2"></i> Cancellation Fees</span>
+                        <span class="small fw-bold">7%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-primary text-white">
+                <div class="row align-items-center">
+                    <div class="col-md-9">
+                        <h4 class="fw-bold mb-1"><i class="fa-solid fa-file-invoice-dollar me-2"></i> Generate Quarterly Financial Statements</h4>
+                        <p class="mb-0 opacity-75">Prepare comprehensive data for accounting and tax purposes.</p>
+                    </div>
+                    <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                        <button class="btn btn-light rounded-pill px-4 shadow-sm">Download PDF Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Monthly Revenue Line Chart
+        const revData = <%- JSON.stringify(monthlyRevenue) %>;
+        const revCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: revData,
+                    backgroundColor: '#4f46e5',
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: "#f8f9fa" } },
+                    x: { grid: { display: false } }
+                },
+                maintainAspectRatio: false
+            }
+        });
+
+        // Breakdown Doughnut Chart
+        const breakCtx = document.getElementById('breakdownChart').getContext('2d');
+        new Chart(breakCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Bookings', 'Orders', 'Fees'],
+                datasets: [{
+                    data: [75, 18, 7],
+                    backgroundColor: ['#4f46e5', '#10b981', '#f59e0b'],
+                    borderWidth: 0,
+                    cutout: '75%'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                maintainAspectRatio: false
+            }
+        });
+    });
+</script>

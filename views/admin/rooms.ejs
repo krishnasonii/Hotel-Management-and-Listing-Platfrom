@@ -1,0 +1,107 @@
+<% layout("/layouts/dashboard") %>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold">Room Management</h2>
+            <p class="text-muted">Manage individual room types and current availability.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addRoomModal"><i class="fa-solid fa-plus me-2"></i> Add Room</button>
+        </div>
+    </div>
+
+    <!-- AI Price Suggestion Alert -->
+    <div class="alert alert-primary border-0 shadow-sm rounded-4 p-4 mb-4 d-flex align-items-center">
+        <div class="icon-box bg-white text-primary rounded-circle p-3 me-3 shadow-sm">
+            <i class="fa-solid fa-brain fa-xl"></i>
+        </div>
+        <div>
+            <h6 class="fw-bold mb-1">AI-Powered Price Suggestions</h6>
+            <p class="mb-0 text-dark opacity-75"><%= priceSuggestions %></p>
+        </div>
+        <button class="btn btn-white btn-sm rounded-pill ms-auto px-4 shadow-sm border border-primary ">Apply Optimization</button>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Hotel</th>
+                                    <th>Room #</th>
+                                    <th>Type</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (allRooms.length === 0) { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <p class="text-muted mb-0">No rooms listed yet. Use the 'Add Room' button to get started.</p>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                                <% allRooms.forEach(room => { %>
+                                    <tr>
+                                        <td class="fw-bold"><%= room.hotel.title %></td>
+                                        <td><%= room.roomNumber %></td>
+                                        <td><span class="badge bg-light text-dark fw-normal border"><%= room.type %></span></td>
+                                        <td><span class="fw-bold text-success">₹<%= room.price.toLocaleString("en-IN") %></span></td>
+                                        <td>
+                                            <% if (room.status === 'Available') { %>
+                                                <span class="badge bg-success px-3 py-2 rounded-pill">Available</span>
+                                            <% } else if (room.status === 'Booked') { %>
+                                                <span class="badge bg-danger px-3 py-2 rounded-pill">Booked</span>
+                                            <% } else { %>
+                                                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Maintenance</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-light btn-sm rounded-circle me-1 border shadow-sm"><i class="fa-solid fa-pen-to-square fa-xs"></i></button>
+                                                <button class="btn btn-light btn-sm rounded-circle text-danger border shadow-sm"><i class="fa-solid fa-trash fa-xs"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Simple Placeholder for Add Room Modal -->
+<div class="modal fade" id="addRoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg p-3">
+            <div class="modal-header border-0">
+                <h5 class="fw-bold">Add New Room Configuration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted smaller">This form allows you to assign unique room numbers and types to specific hotels.</p>
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Select Hotel</label>
+                        <select class="form-select rounded-3">
+                             <option selected disabled>Choose a listing...</option>
+                             <!-- Hotel options would go here -->
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-dark rounded-pill px-4">Register Room</button>
+            </div>
+        </div>
+    </div>
+</div>

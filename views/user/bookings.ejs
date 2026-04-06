@@ -1,0 +1,178 @@
+<% layout("/layouts/dashboard") %>
+<style>
+    @media (max-width: 768px) {
+        .desktop-bookings { display: none !important; }
+        .mobile-bookings { display: block !important; }
+    }
+    .mobile-bookings { display: none; }
+    
+    .booking-card-mobile {
+        background: #fff;
+        border-radius: 1.25rem;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+    .booking-card-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 1rem;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold">My Booking History</h2>
+            <p class="text-muted">Review your past and current hotel bookings.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group mb-3 mb-md-0 shadow-sm rounded-pill overflow-hidden bg-white border" style="max-width: 400px;">
+                <span class="input-group-text border-0 bg-white ps-4 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" id="bookingSearch" class="form-control border-0 py-3" placeholder="Search by hotel name..." aria-label="Search bookings">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <% if (myBookings.length === 0) { %>
+                        <div class="text-center py-5">
+                            <i class="fa-solid fa-calendar-xmarks fa-4x text-light mb-3"></i>
+                            <p class="text-muted">You haven't made any bookings yet.</p>
+                            <a href="/listings" class="btn btn-primary rounded-pill px-4 mt-3">Start Booking</a>
+                        </div>
+                    <% } else { %>
+                        <!-- Desktop View -->
+                        <div class="table-responsive desktop-bookings">
+                             <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Hotel Name</th>
+                                        <th>Check-In</th>
+                                        <th>Check-Out</th>
+                                        <th>Total Price</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% myBookings.forEach(booking => { %>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <% if (booking.listing.image && booking.listing.image.url) { %>
+                                                        <img src="<%= booking.listing.image.url %>" class="rounded-3 me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                    <% } %>
+                                                    <span class="fw-bold"><%= booking.listing.title %></span>
+                                                </div>
+                                            </td>
+                                            <td><%= booking.checkIn.toDateString() %></td>
+                                            <td><%= booking.checkOut.toDateString() %></td>
+                                            <td><span class="fw-bold">₹<%= booking.totalPrice.toLocaleString("en-IN") %></span></td>
+                                            <td>
+                                                <% if (booking.status === 'confirmed') { %>
+                                                    <span class="badge bg-success-light text-success px-3 py-2 rounded-pill">Confirmed</span>
+                                                <% } else if (booking.status === 'cancelled') { %>
+                                                    <span class="badge bg-danger-light text-danger px-3 py-2 rounded-pill">Cancelled</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-warning-light text-warning px-3 py-2 rounded-pill">Pending</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <a href="/listings/<%= booking.listing._id %>" class="btn btn-outline-dark btn-sm rounded-pill px-3">View</a>
+                                                    <a href="/user/bookings/<%= booking._id %>/invoice" class="btn btn-primary btn-sm rounded-pill px-3">Invoice</a>
+                                                    <% if (booking.status !== 'cancelled') { %>
+                                                        <form action="/user/bookings/<%= booking._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?')">
+                                                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3">Cancel</button>
+                                                        </form>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Mobile View -->
+                        <div class="mobile-bookings">
+                            <% myBookings.forEach(booking => { %>
+                                <div class="booking-card-mobile">
+                                    <div class="d-flex align-items-start gap-3 mb-3">
+                                        <% if (booking.listing.image && booking.listing.image.url) { %>
+                                            <img src="<%= booking.listing.image.url %>" class="booking-card-image">
+                                        <% } %>
+                                        <div class="flex-grow-1">
+                                            <h6 class="fw-bold mb-1"><%= booking.listing.title %></h6>
+                                            <div class="small text-muted mb-2">
+                                                <i class="fa-regular fa-calendar me-1"></i>
+                                                <%= booking.checkIn.toLocaleDateString() %> - <%= booking.checkOut.toLocaleDateString() %>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <span class="fw-bold text-dark">₹<%= booking.totalPrice.toLocaleString("en-IN") %></span>
+                                                <% if (booking.status === 'confirmed') { %>
+                                                    <span class="badge bg-success-light text-success rounded-pill px-2">Confirmed</span>
+                                                <% } else if (booking.status === 'cancelled') { %>
+                                                    <span class="badge bg-danger-light text-danger rounded-pill px-2">Cancelled</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-warning-light text-warning rounded-pill px-2">Pending</span>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-4">
+                                            <a href="/listings/<%= booking.listing._id %>" class="btn btn-outline-dark btn-sm w-100 rounded-pill py-2">View</a>
+                                        </div>
+                                        <div class="col-4">
+                                            <a href="/user/bookings/<%= booking._id %>/invoice" class="btn btn-primary btn-sm w-100 rounded-pill py-2">Invoice</a>
+                                        </div>
+                                        <div class="col-4">
+                                            <% if (booking.status !== 'cancelled') { %>
+                                                <form action="/user/bookings/<%= booking._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure?')">
+                                                    <button class="btn btn-outline-danger btn-sm w-100 rounded-pill py-2">Cancel</button>
+                                                </form>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const searchInput = document.getElementById("bookingSearch");
+        if (searchInput) {
+            searchInput.addEventListener("input", (e) => {
+                const query = e.target.value.toLowerCase();
+                const trElements = document.querySelectorAll("tbody tr");
+                
+                trElements.forEach(row => {
+                    const hotelNameSpan = row.querySelector(".fw-bold");
+                    if (hotelNameSpan) {
+                        const hotelName = hotelNameSpan.textContent.toLowerCase();
+                        if (hotelName.includes(query)) {
+                            row.style.display = "";
+                        } else {
+                            row.style.display = "none";
+                        }
+                    }
+                });
+            });
+        }
+    });
+</script>

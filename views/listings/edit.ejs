@@ -1,54 +1,85 @@
 <% layout("/layouts/boilerplate") %>
 
-    <div class="row">
-        <div class="col-8 offset-2">
-    <h2>Edit request</h2>
-      
+<div class="row mt-5">
+    <div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3 px-3">
+        <div class="auth-card">
+            <div class="text-center mb-5">
+                <i class="fa-solid fa-pen-to-square fa-3x text-danger mb-3"></i>
+                <h2 class="fw-bold">Update Property</h2>
+                <p class="text-muted">Edit your hotel details to keep them fresh and accurate for travelers</p>
+            </div>
+            
+            <form action="/listings/<%= listing._id %>?_method=PUT" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                
+                <div class="mb-4 text-center">
+                    <p class="small fw-bold text-muted text-uppercase mb-3">Current Listing Preview</p>
+                    <div class="card border-0 shadow-sm overflow-hidden rounded-4 mx-auto" style="max-width: 300px;">
+                        <img src="<%= listing.image.url %>" class="img-fluid" style="height: 180px; object-fit: cover;">
+                        <div class="p-2 border-top bg-light text-truncate small fw-bold">
+                            <%= listing.title %>
+                        </div>
+                    </div>
+                </div>
 
-        <form method="POST" action="/listings/<%=listing._id%>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data" ><!-- //ye _id se pura mongodb basd id print hoga-->
-           <div class="mb-3">
-            <label for="title" class="form-label">Title</label>
-            <input  name="listing[title]" value="<%=listing.title%>" type="text" class="form-control" required>
-                     <div class="invalid-feedback">Title must fill</div>    
-    
+                <div class="mb-4">
+                    <label for="title" class="form-label small fw-bold text-muted text-uppercase">Listing Title</label>
+                    <input name="listing[title]" id="title" type="text" class="form-control rounded-3 py-2 fs-5 fw-bold" value="<%= listing.title %>" required>
+                    <div class="invalid-feedback">A title is required.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="description" class="form-label small fw-bold text-muted text-uppercase">Property Description</label>
+                    <textarea name="listing[description]" id="description" rows="4" class="form-control rounded-3 py-2" required><%= listing.description %></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="image" class="form-label small fw-bold text-muted text-uppercase">Update Featured Image</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-cloud-arrow-up text-muted"></i></span>
+                        <input name="listing[image]" id="image" type="file" class="form-control rounded-end-3 py-2">
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 text-muted">
+                        <label for="price" class="form-label small fw-bold text-muted text-uppercase">Price per Night</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 fw-bold">₹</span>
+                            <input name="listing[price]" id="price" type="number" class="form-control rounded-end-3 py-2" value="<%= listing.price %>" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mt-3 mt-md-0">
+                        <label for="category" class="form-label small fw-bold text-muted text-uppercase">Category</label>
+                        <select name="listing[category]" id="category" class="form-select rounded-3 py-2">
+                            <option value="trending" <%= listing.category === 'trending' ? 'selected' : '' %>>Trending</option>
+                            <option value="rooms" <%= listing.category === 'rooms' ? 'selected' : '' %>>Rooms</option>
+                            <option value="iconiccities" <%= listing.category === 'iconiccities' ? 'selected' : '' %>>Iconic Cities</option>
+                            <option value="mountains" <%= listing.category === 'mountains' ? 'selected' : '' %>>Mountains</option>
+                            <option value="castles" <%= listing.category === 'castles' ? 'selected' : '' %>>Castles</option>
+                            <option value="pool" <%= listing.category === 'pool' ? 'selected' : '' %>>Pool</option>
+                            <option value="camping" <%= listing.category === 'camping' ? 'selected' : '' %>>Camping</option>
+                            <option value="farms" <%= listing.category === 'farms' ? 'selected' : '' %>>Farms</option>
+                            <option value="artic" <%= listing.category === 'artic' ? 'selected' : '' %>>Artic</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-5">
+                    <div class="col-md-7 text-muted">
+                        <label for="location" class="form-label small fw-bold text-muted text-uppercase">Location / City</label>
+                        <input name="listing[location]" id="location" type="text" class="form-control rounded-3 py-2" value="<%= listing.location %>" required>
+                    </div>
+                    <div class="col-md-5 mt-3 mt-md-0">
+                        <label for="country" class="form-label small fw-bold text-muted text-uppercase">Country</label>
+                        <input name="listing[country]" id="country" type="text" class="form-control rounded-3 py-2" value="<%= listing.country %>" required>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary-custom w-100 py-3 shadow-sm fs-5">Save Updates</button>
+                    <a href="/listings/<%= listing._id %>" class="btn btn-outline-dark rounded-pill px-4 d-flex align-items-center shadow-sm">Cancel</a>
+                </div>
+            </form>
         </div>
-
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-            <textarea name="listing[description]" class="form-control" required><%= listing.description %></textarea>
-                             <div class="invalid-feedback">Short description</div>    
-
-        </div>
-
-         <div class="mb-3">
-         <label for="image" class="form-label" class="form-control">Upload new Image Image</label>
-        <input name="listing[image]" value="<%=listing.image%>" type="file" class="form-control">
-    
     </div>
- 
-        <div class="row">
-        <div class="mb-3 col-md-4">
-            <label for="price" class="form-label">Price</label>
-        <input name="listing[price]" value="<%=listing.price%> "type="string" class="form-control" required>
-             <div class="invalid-feedback">Price should be valid</div>
-   
-    </div>
-        
-        <div class="mb-3 col-md-8">
-            <label for="country" class="form-label">Country</label>
-        <input name="listing[country]" value="<%=listing.country%>" type="text" class="form-control" required>
-                     <div class="invalid-feedback">Country should be valid</div>
-
-    </div>
-        </div>
-
-
-        <div class="mb-3">
-            <label for="location" class="form-label">Location</label>
-        <input name="listing[location]" value="<%=listing.location%>" type="text" class="form-control" required>
-             <div class="invalid-feedback">Location should be valid</div>    
-    </div>
-        <button class="btn btn-dark" style="background-color: red;">Edit</button>
-        </form>
-        </div>
-        </div>
+</div>

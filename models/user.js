@@ -14,6 +14,28 @@ const userSchema = new Schema({
       ref: "Listing",
     },
   ],
+  cart: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Listing",
+    },
+  ],
+
+  role: {
+    type: String,
+    enum: ["admin", "user"],
+    default: "user",
+  },
+  phone: {
+    type: String,
+  },
+  bio: {
+    type: String,
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 userSchema.plugin(passportLocalMongoose);

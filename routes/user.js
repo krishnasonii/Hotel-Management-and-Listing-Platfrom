@@ -8,7 +8,7 @@ router.get("/signup",(req,res)=>{
     res.render("users/signup.ejs");
 }); 
 
-router.post("/signup",Wrapasync(async(req,res)=>{
+router.post("/signup",Wrapasync(async(req,res,next)=>{
     try{
            let {username,email,password}=req.body;
     
@@ -20,8 +20,14 @@ router.post("/signup",Wrapasync(async(req,res)=>{
         if(err){
             return next(err);
         }
-    req.flash("success","Welcome the Hotel Listings and Reservation Site!");
-     res.redirect("/listings");
+    req.flash("success","Welcome to the Hotel Listings and Reservation Site!");
+    req.session.save(() => {
+        if (req.user.role === "admin") {
+            res.redirect("/admin/dashboard");
+        } else {
+            res.redirect("/user/dashboard");
+        }
+    });
      });
      
      
@@ -43,7 +49,13 @@ router.get("/login",(req,res)=>{
 router.post("/login", passport.authenticate("local",{failureRedirect: '/login',failureFlash: true, }),
 async(req,res)=>{
     req.flash("success","welcome Back to this site! You are logged in!");
-    res.redirect("/listings");
+    req.session.save(() => {
+        if (req.user.role === "admin") {
+            res.redirect("/admin/dashboard");
+        } else {
+            res.redirect("/user/dashboard");
+        }
+    });
 }
 );
 
@@ -51,9 +63,9 @@ async(req,res)=>{
 router.get("/logout",(req,res,next)=>{
     req.logout((err)=>{
         if(err){
-            next(err);
+            return next(err);
         }
-        req.flash("success","you are logged out");
+        req.flash("success","You have signed out successfully!");
         res.redirect("/listings");
     })
 })
